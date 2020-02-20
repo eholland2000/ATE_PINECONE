@@ -44,8 +44,10 @@ public class Location {
 		 */
 		p.setQuantity(amount); 			// updates amount to the sent value
 		this.inventoryPar.add(p);		// adds updated amount to par
-		p.setQuantity(0);				// assumes 0 products exist in store
-		this.inventoryIn.add(p);		// adds to in
+		
+		// creates new p1 to be added to inventory | otherwise the same variable is in both and wont allow for them to be independent
+		Product p1 = new Product(p.getSKU(), p.getPrice(), 0, p.getName(), p.getDesc());
+		this.inventoryIn.add(p1);		// adds to in
 		
 		
 		System.out.println( "SKU :" + p.getSKU() + " @ " + p.getQuantity() + "  -added to Par level-  ");

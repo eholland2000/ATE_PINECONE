@@ -3,19 +3,6 @@ package application;
 import java.io.IOException;
 
 public class Test {
-	Product[] dummyIn = 
-						{	//int SKU, int price, int quan, String name, String desc
-								new Product(0, 20, 0, "ass", "see name"),
-								new Product(1, 1, 0, "tost"),
-								new Product(2, 4.20, 0, "weed", "smelly")
-						};
-	Product[] dummyPar=
-						{	//int SKU, int price, int quan, String name, String desc
-								new Product(0, 20, 10, "ass", "see name"),
-								new Product(1, 1, 69, "tost"),
-								new Product(2, 4.20, 420, "weed", "smelly")
-						};
-	
 	public static void main(String[] args)
 	{
 		Store s1 = new Store("1", "SM1");
