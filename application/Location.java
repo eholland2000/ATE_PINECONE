@@ -70,12 +70,13 @@ public class Location {
 					this.inventoryIn.get(i).setQuantity(level + amount);	// '+' because amount is -
 					return true;
 				}					
-				if( amount <= 0 )
+				if( amount >= 0 )
 				{
 					/*
 					 * Positive amounts are assumed to be retrieved from a count/ order and will be updated to the amount passed
 					 */
 					this.inventoryIn.get(i).setQuantity(amount);
+					// update arrays correctly
 					return true;
 				}
 			}
