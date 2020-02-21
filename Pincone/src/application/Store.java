@@ -46,22 +46,36 @@ public class Store extends Location {
 	
 	public void printInLevels()
 	{
+		System.out.println("===== In  Levels =====");
 		for(int x =0; x < this.inventoryIn.size(); x++)
 		{
-			System.out.println(this.inventoryIn.get(x).getName() + " has " + this.inventoryIn.get(x).getQuantity());
+			System.out.println(this.inventoryIn.get(x).getName() + "\t has \t" + this.inventoryIn.get(x).getQuantity());
 		}
+		System.out.println("===== ========== =====\n");
 	}
 	public void printParLevels()
 	{
+		System.out.println("===== Par Levels =====");
 		for(int x =0; x < this.inventoryPar.size(); x++)
 		{
-			System.out.println(this.inventoryPar.get(x).getName() + " has " + this.inventoryPar.get(x).getQuantity());
+			System.out.println(this.inventoryPar.get(x).getName() + "\t is parred at \t" + this.inventoryPar.get(x).getQuantity());
 		}
+		System.out.println("===== ========== =====\n");
+
+	}
+	public void printCart()
+	{
+		System.out.println("===== Cart  size =====");
+		for(int x = 0; x < this.cart.size(); x++)
+		{
+			System.out.println("Found \t" + this.cart.get(x).getName() + " at \t"+ this.cart.get(x).getQuantity());
+		}
+		System.out.println("===== ========== =====\n");
 	}
 	public String buildCart(int SKU)
 	{
 		/*
-		 * Essentially the POS add item function
+		 * POS add item function
 		 * on call the item passed is checked against store inventory
 		 * Does not update inventory until order is placed
 		 */
@@ -79,16 +93,17 @@ public class Store extends Location {
 					 */
 					if( this.cart.get(x).getSKU() == SKU )
 					{
-						Product p = this.inventoryIn.get(x);
+						Product p = this.cart.get(x);
 						p.setQuantity( p.getQuantity() + 1);		// increases quantity by 1
+						this.cart.set(x, p);
 						
-						this.cart.add(p);
 						return "Success: Product quantity was updated";
 					}				
 					
 				}
 				Product p = this.inventoryIn.get(i);
-				p.setQuantity(1);
+				Product p1 = new Product(p.getSKU(), p.getPrice(), 1, p.getName(), p.getDesc());		// adds 1 of the item ( starts the cart )
+				this.cart.add(p1);
 				return "Success: Product was added to the cart";
 			}
 		}
@@ -96,6 +111,7 @@ public class Store extends Location {
 	}
 	public String placeOrder(String payment)
 	{
+		// POS function to process an Order
 		// Payment is a credit card input in "<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>" format | see processPayment()
 		if( processPayment(payment) )
 		{

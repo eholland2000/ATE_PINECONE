@@ -68,6 +68,8 @@ public class Location {
 					/*
 					 * negative values passed reduce the quantity by the amount
 					 */
+					System.out.println( "SKU :" + this.inventoryIn.get(i).getSKU() + " @ " + this.inventoryIn.get(i).getQuantity() + "  -reduced by-  " + amount);
+					
 					int level = this.inventoryIn.get(i).getQuantity();
 					this.inventoryIn.get(i).setQuantity(level + amount);	// '+' because amount is -
 					return true;
@@ -77,6 +79,8 @@ public class Location {
 					/*
 					 * Positive amounts are assumed to be retrieved from a count/ order and will be updated to the amount passed
 					 */
+					System.out.println( "SKU :" + this.inventoryIn.get(i).getSKU() + " @ " + this.inventoryIn.get(i).getQuantity() + "  -set to -  " + amount);
+
 					this.inventoryIn.get(i).setQuantity(amount);
 					// update arrays correctly
 					return true;
@@ -98,8 +102,6 @@ public class Location {
 			String orderName	 = this.inventoryIn.get(i).getName();
 			int orderAmount 	 = this.inventoryPar.get(i).getQuantity() - this.inventoryIn.get(i).getQuantity();
 			
-			System.out.println("*** " + orderAmount);
-
 			Product orderProduct = new Product(orderSKU, orderPrice, orderAmount, orderName, "");	// creates a temp object to be added to the order report | desc is excluded 
 			
 			order.add(orderProduct);		// adds the needed product
@@ -108,7 +110,7 @@ public class Location {
 		return order;						// returns the list of requested products
 	}
 	
-
+/*
 	public static void main( String[] args )
 	{
 		Location l = new Location("001", "SM-001");
@@ -118,5 +120,6 @@ public class Location {
 		l.setParProduct(p, 0);
 		l.setParProduct(p, -8);
 
-	}
+	}/*
+	*/
 }

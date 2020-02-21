@@ -6,10 +6,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class StoreManager {
-	static Store store;	
+	static Store store;		// static as there is only 1 store to be edited by the SM
+							// TODO enable way to track employee terminal use, as SM credentials are required to boot
 	
 	private boolean populateStore()
 	{
+		/*
+		 * This gets values last submitted from the store & any changes HQ made to par levels on launch
+		 * 
+		 * StoreID is passed as the SQL query to get the correct store
+		 * 
+		 * IMS table view, SM can only edit inventoryIn levels
+		 */
+		
 		//TODO retrieve store information from table
 		System.out.println("Adding store inventory....");
 		// TODO populate
@@ -30,7 +39,6 @@ public class StoreManager {
 		
 		for(int x = 0; x < toOrder.size(); x++)
 		{
-			System.out.println(toOrder.get(x).getName());
 			fw.write(toOrder.get(x).getName() + "\t\t@ " + toOrder.get(x).getQuantity() + " units, \tfor $" + toOrder.get(x).getPrice() + " each\n" );
 		}
 		fw.flush();
@@ -41,12 +49,12 @@ public class StoreManager {
 	
 	public StoreManager(String storeID, String smID)
 	{
-		store = new Store(storeID, smID);		// Initializes the store
+		store = new Store(storeID, smID);				// Initializes the store 
 		populateStore();						
 	}
 	public StoreManager(Store s)
 	{
-		store = s;		// Initializes the store
+		store = s;										// Initializes the store
 		populateStore();						
 	}
 }
