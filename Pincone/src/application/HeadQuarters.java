@@ -3,7 +3,7 @@ package application;
 import java.util.ArrayList;
 
 public class HeadQuarters {
-	ArrayList<Product> pendingOrders = new ArrayList<Product>();
+	ArrayList<Product> pendingOrders = new ArrayList<Product>();	// table population on launch > HQ view 
 	ArrayList<Store> stores = new ArrayList<Store>();				// not to be used | concept
 	
 	/*

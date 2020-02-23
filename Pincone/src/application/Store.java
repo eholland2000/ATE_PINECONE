@@ -122,7 +122,14 @@ public class Store extends Location {
 		}
 		return "Error: something went wrong, please try again";
 	}
-	public String addCustomer(String name, String cell, String address)
+	public String placeOrder(String cardNum, String expDate, String pin)
+	{
+		/*
+		 * Alternate input 
+		 */
+		return placeOrder(cardNum + "," + expDate + "," + pin);
+	}
+	public String addCustomer(String name, String cell)
 	{
 		/*
 		 * name : "first last"
