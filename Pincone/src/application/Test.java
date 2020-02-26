@@ -1,11 +1,73 @@
 package application;
 
+import java.awt.Component;
 import java.io.IOException;
+import javax.swing.*;
+
 
 public class Test {
 	@SuppressWarnings("static-access")			// to get IDE to not complain about weird static variable
 	public static void main(String[] args)
 	{
+		boolean appRunning = true;
+		
+		while (appRunning) {
+			Object[] options = {"SM","WSM","E","HQ", "Turn off"};
+			int n = JOptionPane.showOptionDialog(null, "Would you like some green eggs to go with that ham?",
+						"A Silly Question",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[2]);
+			switch (n) {
+			case 0:
+				Object[] SMOptions = {"Add item inventory", "Set item inventory", "Logout"};
+				//functionNo cuz we provide them functions here
+				int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Store Manager. Select an option",
+						"A Silly Question",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						SMOptions,
+						SMOptions[2]);
+				break;
+			case 1:
+				Object[] WMOptions = {"Add item inventory", "Set item inventory", "Logout"};
+				functionNo = JOptionPane.showOptionDialog(null, "Greetings, Warehouse manager. Select an option",
+						"A Silly Question",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						WMOptions,
+						WMOptions[2]);
+				break;
+			case 2:
+				Object[] employeeOptions = {"", "Logout"};
+				functionNo = JOptionPane.showOptionDialog(null, "Greetings, employee. Select an option",
+						"A Silly Question",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						employeeOptions,
+						employeeOptions[2]);
+				break;
+			case 3:
+				Objcet[] HQOptions = {"Add a store location", "Set store location item inventory", "Logout"};
+				functionNo = JOptionPane.showOptionDialog(null, "Greetings, HQ. Select an option",
+						"A Silly Question",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						HQOptions,
+						HQOptions[2]);
+				break;
+			case 4:
+				appRunning = false;
+				break;
+			}
+		}
+		
 		/*
 		 * funky way to access the store, but ensures the StoreManager is editing the store they own
 		 * 
