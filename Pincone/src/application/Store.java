@@ -65,14 +65,13 @@ public class Store extends Location {
 	}
 	public String printCart()
 	{
-		System.out.println("===== Cart  size =====");
-		String combined = "";
+		String combined = "===== Cart  size =====\n";
 		for(int x = 0; x < this.cart.size(); x++)
 		{
-			combined += "Found \t" + this.cart.get(x).getName() + " at \t"+ this.cart.get(x).getQuantity();
+			combined += "Found \t\t" + this.cart.get(x).getName() + " at \t\t"+ this.cart.get(x).getQuantity() + "\n";
 		}
-		System.out.println("===== ========== =====\n");
-		return "===== Cart  size =====\n" + combined + "===== ========== =====\n";
+		combined += "===== ========== =====\n";
+		return combined;
 	}
 	public String buildCart(int SKU)
 	{
@@ -86,7 +85,7 @@ public class Store extends Location {
 			/*
 			 * Check first if the product exists within the store
 			 */
-			if( this.inventoryIn.get(i).getSKU() == SKU && this.inventoryIn.get(i).getQuantity() > 0)
+			if( this.inventoryIn.get(i).getSKU() == SKU )
 			{
 				for(int x = 0; x < cart.size(); x++)
 				{

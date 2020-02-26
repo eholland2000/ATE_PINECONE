@@ -12,6 +12,12 @@ public class Test {
 		StoreManager sm = new StoreManager(s1);
 		boolean appRunning = true;
 		
+		// adds dummy inventory
+		
+		sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);	// always return true ( will  not return false unless misused )
+		sm.store.setParProduct(new Product(1, 1, 0, "tost"), 69);
+		sm.store.setParProduct(new Product(2, 4.20, 420, "weed", "smelly"), 420);
+		
 		while (appRunning) {
 			Object[] options = {"SM","WSM","E","HQ", "Turn off"};
 			int n = JOptionPane.showOptionDialog(null, "Select your company role:",
@@ -65,16 +71,25 @@ public class Test {
 						if (result == JOptionPane.OK_OPTION) {
 						   System.out.println("sku: " + sku.getText());
 						   System.out.println("price: " + price.getText());
-						   sm.store.setParProduct(new Product(Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), 
+						  
+						   try {
+							   sm.store.setParProduct(new Product(Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), 
 								   Integer.parseInt(quantity.getText()), name.getText(), description.getText()), 
 								   Integer.parseInt(inventory.getText()));
-						   JOptionPane.showMessageDialog(null, "Product successfully added!");
+							   
+							   JOptionPane.showMessageDialog(null, "Product successfully added!");
+						   } catch (NumberFormatException e) {
+							   JOptionPane.showMessageDialog(null, "Error");
+						   }
 						}
 						  
 						//(sku, price, quantity, name, description), inventory
 						//sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);
 						break;
 					case 1:
+						// used this as a test button 
+						sm.store.printParLevels();
+						sm.store.printInLevels();
 						break;
 					case 2:
 						runningSM = false;
@@ -121,11 +136,11 @@ public class Test {
 						int result = JOptionPane.showConfirmDialog(null, p, 
 						         "Please Enter the SKU of the item you want to add", JOptionPane.OK_CANCEL_OPTION);
 						if (result == JOptionPane.OK_OPTION) {
-						   System.out.println("sku: " + sku.getText());
-						   sm.store.buildCart(Integer.parseInt(sku.getText()));
-						   JOptionPane.showMessageDialog(null, "Product successfully added to cart!");
+						   // done as System.out for debugging purposes; method call is still functional as normal
+							System.out.println(sm.store.buildCart(Integer.parseInt(sku.getText())));
+							JOptionPane.showMessageDialog(null, "Product successfully added to cart!");
 						}
-						sm.store.buildCart(1);
+						sm.store.printCart();
 						break;
 					case 1:
 						JOptionPane.showMessageDialog(null, sm.store.printCart());
