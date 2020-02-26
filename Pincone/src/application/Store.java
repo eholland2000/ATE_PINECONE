@@ -63,14 +63,16 @@ public class Store extends Location {
 		System.out.println("===== ========== =====\n");
 
 	}
-	public void printCart()
+	public String printCart()
 	{
 		System.out.println("===== Cart  size =====");
+		String combined = "";
 		for(int x = 0; x < this.cart.size(); x++)
 		{
-			System.out.println("Found \t" + this.cart.get(x).getName() + " at \t"+ this.cart.get(x).getQuantity());
+			combined += "Found \t" + this.cart.get(x).getName() + " at \t"+ this.cart.get(x).getQuantity();
 		}
 		System.out.println("===== ========== =====\n");
+		return "===== Cart  size =====\n" + combined + "===== ========== =====\n";
 	}
 	public String buildCart(int SKU)
 	{
