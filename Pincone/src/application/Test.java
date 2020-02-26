@@ -92,6 +92,7 @@ public class Test {
 						sm.store.printInLevels();
 						break;
 					case 2:
+						// Log out
 						runningSM = false;
 						break;
 					}
