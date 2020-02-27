@@ -4,11 +4,18 @@ import java.util.ArrayList;
 
 public class Store extends Location {
 	private ArrayList<Product> cart = new ArrayList<Product>();
-		
+	static ArrayList<Store> storeList;
 	public Store(String storeID, String storeSM) 
 	{
 		super(storeID, storeSM);
 		// TODO Auto-generated constructor stub
+	}
+	public ArrayList<Store> getStores() {
+		return storeList;
+	}
+	
+	public void addStore(Store e) {
+		storeList.add(e);
 	}
 	
 	private boolean processPayment(String c)

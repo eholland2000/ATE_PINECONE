@@ -91,7 +91,7 @@ public class Test {
 						   System.out.println("price: " + price.getText());
 						  
 						   try {
-							   sm.store.setParProduct(new Product(Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), 
+							   sm.store.setInProduct(new Product(Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), 
 								   Integer.parseInt(quantity.getText()), name.getText(), description.getText()), 
 								   Integer.parseInt(inventory.getText()));
 							   
@@ -110,7 +110,6 @@ public class Test {
 						sm.store.printInLevels();
 						break;
 					case 2:
-						// Log out
 						runningSM = false;
 						break;
 					}
@@ -119,7 +118,7 @@ public class Test {
 			case 1:
 				boolean runningWM = true;
 				while (runningWM) {
-					Object[] WMOptions = {"Add item inventory", "Set item inventory", "Logout"};
+					Object[] WMOptions = {"Add item inventory par at this store", "Set item inventory par at this store", "Logout"};
 					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Warehouse manager. Select an option",
 							"A Silly Question",
 							JOptionPane.YES_NO_CANCEL_OPTION,
@@ -166,6 +165,7 @@ public class Test {
 						break;
 					case 2:
 						try {
+							//sm.store.placeOrder(payment);
 							JOptionPane.showMessageDialog(null, sm.sendOrder());				// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
 						} catch (IOException e) {
 							// should not occur
@@ -190,6 +190,8 @@ public class Test {
 							HQOptions,
 							HQOptions[2]);
 					switch (functionNo) {
+					case 0:
+						JOptioinPane.showMessageDia
 					case 2:
 						runningHQ = false;
 						break;

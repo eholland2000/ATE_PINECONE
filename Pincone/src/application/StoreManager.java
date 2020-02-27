@@ -5,10 +5,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/*
+ *
+ * Sees store reports
+ */
 public class StoreManager {
 	static Store store;		// static as there is only 1 store to be edited by the SM
 							// TODO enable way to track employee terminal use, as SM credentials are required to boot
-	
 	private boolean populateStore()
 	{
 		/*
