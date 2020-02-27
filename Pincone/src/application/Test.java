@@ -13,9 +13,9 @@ public class Test {
 		
 		// adds dummy inventory
 		
-		sm.store.setParProduct(new Product(0, 20, 10, "hat", "see name"), 8);	// always return true ( will  not return false unless misused )
-		sm.store.setParProduct(new Product(1, 1, 0, "glove"), 69);
-		sm.store.setParProduct(new Product(2, 4.20, 420, "Coat", "smelly"), 420);
+		sm.store.setParProduct(new Product(0, 20.00, 90, "Winter Hat", "Fluffy hat with puffball"), 80);	// always return true ( will  not return false unless misused )
+		sm.store.setParProduct(new Product(1, 10.00, 10, "Gloves"), 70);
+		sm.store.setParProduct(new Product(2, 99.99, 200, "Coat", "Waterproof, windproof, and very warm"), 100);
 		
 		while (appRunning) {
 			/*

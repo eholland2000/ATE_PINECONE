@@ -17,7 +17,7 @@ public class Product {
 		this.name = name;
 		this.desc = desc;
 	}
-	public Product(int SKU, int price, int quan, String name) 
+	public Product(int SKU, double price, int quan, String name) 
 	{
 		// can be entered without a description of the product 
 		this.SKU = SKU;
