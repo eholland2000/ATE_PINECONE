@@ -1,6 +1,5 @@
 package application;
 
-import java.awt.Component;
 import java.io.IOException;
 import javax.swing.*;
 
@@ -14,11 +13,30 @@ public class Test {
 		
 		// adds dummy inventory
 		
-		sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);	// always return true ( will  not return false unless misused )
-		sm.store.setParProduct(new Product(1, 1, 0, "tost"), 69);
-		sm.store.setParProduct(new Product(2, 4.20, 420, "weed", "smelly"), 420);
+		sm.store.setParProduct(new Product(0, 20, 10, "hat", "see name"), 8);	// always return true ( will  not return false unless misused )
+		sm.store.setParProduct(new Product(1, 1, 0, "glove"), 69);
+		sm.store.setParProduct(new Product(2, 4.20, 420, "Coat", "smelly"), 420);
 		
 		while (appRunning) {
+			/*
+			 * I want to make this into a JFrame Object instead of a series of JOptionPanes
+			 * 
+			 * Launcher.java : New class file will fetch data from DB, Populates application with Product templates + Store InInventory levels
+			 * 
+			 * Application Launch/ Run sequence
+			 *  1) Launcher.java							// holds "main( String[] args)"
+			 *  2) Launcher calls fetch request from DB		
+			 *  3) Populates retrieved into Product/ StorePar ArrayList		// held in Launcher
+			 *  4) JFrame built
+			 *  5) Log-in Page
+			 *  	StoreManager
+			 *  		Assign POS	:	Employee login function ( TODO implement )
+			 *  		
+			 *  	WareHouseStoreManager
+			 *  	HeadQuarters
+			 *  	
+			 *  
+			 */
 			Object[] options = {"SM","WSM","E","HQ", "Turn off"};
 			int n = JOptionPane.showOptionDialog(null, "Select your company role:",
 						"A Silly Question",
