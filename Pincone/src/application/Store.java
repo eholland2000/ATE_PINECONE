@@ -260,7 +260,7 @@ public class Store {
 		{
 			if( updateProducts( this.cart ))
 			{
-				return "Success! Thank you for shopping at FastFit! + \n" + this.printCart() + "\nTotal: $" + totalPriceString();
+				return "Success! Thank you for shopping at FastFit! \n\n" + this.printCart() + "\nTotal: $" + totalPriceString();
 			}
 		}
 		throw new Exception();

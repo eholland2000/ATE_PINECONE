@@ -183,7 +183,7 @@ public class Test {
 								JTextField securityCode = new JPasswordField(3);
 								Object[] message = {
 										"Enter the 16-Digit Card Number:", cardNum,
-										"Enter the Expiration Date:", expDate,
+										"Enter the Expiration Date: (MM/YY)", expDate,
 										"Enter the 3-Digit Security Code:", securityCode
 								};
 								//String cardNum = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 16-digit Card Number:");
