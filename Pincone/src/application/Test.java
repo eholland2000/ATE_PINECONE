@@ -162,6 +162,8 @@ public class Test {
 						break;
 					case 1:
 						JOptionPane.showMessageDialog(null, sm.store.printCart());
+						//command to flush cart
+						sm.store.flushCart();
 						break;
 					case 2:
 						try {
@@ -191,7 +193,7 @@ public class Test {
 							HQOptions[2]);
 					switch (functionNo) {
 					case 0:
-						JOptioinPane.showMessageDia
+						break;
 					case 2:
 						runningHQ = false;
 						break;

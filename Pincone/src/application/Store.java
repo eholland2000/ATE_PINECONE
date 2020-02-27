@@ -80,6 +80,9 @@ public class Store extends Location {
 		combined += "===== ========== =====\n";
 		return combined;
 	}
+	public void flushCart() {
+		cart.removeAll(cart);
+	}
 	public String buildCart(int SKU)
 	{
 		/*
