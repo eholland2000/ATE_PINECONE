@@ -164,13 +164,15 @@ public class Test {
 						break;
 					case 2:
 						try {
-							String input = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, please enter your payment info in this format: \n<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>");
+							String receipt = sm.store.printCart();
+							String input = JOptionPane.showInputDialog(null, "\n, please enter your payment info in this format: \n<Number(16)>,<expire date in 'MM/YY'>,<pin(3)>");
 							String placeOrderResult = sm.store.placeOrder(input);
 							JOptionPane.showMessageDialog(null, placeOrderResult);
 							
 							//command to flush cart
 							if (!placeOrderResult.equals("Error: something went wrong, please try again")) {
 								sm.store.flushCart();
+								JOptionPane.showMessageDialog(null, "Receipt:\n" + receipt);
 							}
 							// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
 						} catch (Exception e) {
