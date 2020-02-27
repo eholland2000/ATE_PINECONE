@@ -1,5 +1,6 @@
 package application;
 
+import java.io.IOException;
 import javax.swing.*;
 
 public class Test {
@@ -48,7 +49,7 @@ public class Test {
 			case 0:
 				boolean runningSM = true;
 				while (runningSM) {
-					Object[] SMOptions = {"Add item inventory", "Set item inventory", "Logout"};
+					Object[] SMOptions = {"Add item inventory", "Print Inventory Report", "Logout"};
 					//functionNo cuz we provide them functions here
 					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Store Manager. Select an option",
 							"A Silly Question",
@@ -105,8 +106,7 @@ public class Test {
 						break;
 					case 1:
 						// used this as a test button 
-						sm.store.printParLevels();
-						sm.store.printInLevels();
+						JOptionPane.showMessageDialog(null, sm.store.printInLevels() + "\n" + sm.store.printParLevels());
 						break;
 					case 2:
 						runningSM = false;
@@ -145,6 +145,7 @@ public class Test {
 							employeeOptions[1]);
 					switch (functionNo) {
 					case 0:
+						// Build Cart
 						JTextField sku = new JTextField(5);
 						JPanel p = new JPanel();
 						p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
@@ -154,32 +155,40 @@ public class Test {
 						         "Please Enter the SKU of the item you want to add", JOptionPane.OK_CANCEL_OPTION);
 						if (result == JOptionPane.OK_OPTION) {
 						   // done as System.out for debugging purposes; method call is still functional as normal
-							System.out.println(sm.store.buildCart(Integer.parseInt(sku.getText())));
-							JOptionPane.showMessageDialog(null, "Product successfully added to cart!");
+							try {
+								System.out.println(sm.store.buildCart(Integer.parseInt(sku.getText())));
+								JOptionPane.showMessageDialog(null, "Product successfully added to cart!");
+							} catch ( NumberFormatException e ) {
+								JOptionPane.showMessageDialog(null, "Please enter a valid SKU");
+							}
 						}
 						sm.store.printCart();
 						break;
 					case 1:
+						// Check Cart
 						JOptionPane.showMessageDialog(null, sm.store.printCart());
 						break;
 					case 2:
+						// Checkout
 						try {
-							String receipt = sm.store.printCart();
-							String input = JOptionPane.showInputDialog(null, "\n, please enter your payment info in this format: \n<Number(16)>,<expire date in 'MM/YY'>,<pin(3)>");
-							String placeOrderResult = sm.store.placeOrder(input);
-							JOptionPane.showMessageDialog(null, placeOrderResult);
-							
+							/*
+							 * TODO Break up inputs into 
+							 * 	Card number
+							 * 	EXP date
+							 * 	CV number/ Pin		
+							 * for better readibility 
+							 */
+							String input = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, please enter your payment info in this format: \n<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>");
+							JOptionPane.showMessageDialog(null, sm.store.placeOrder(input));
 							//command to flush cart
-							if (!placeOrderResult.equals("Error: something went wrong, please try again")) {
-								sm.store.flushCart();
-								JOptionPane.showMessageDialog(null, "Receipt:\n" + receipt);
-							}
+							sm.store.flushCart();
 							// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
 						} catch (Exception e) {
 							// should not occur
 							JOptionPane.showMessageDialog(null, "Error in sending order");
 							e.printStackTrace();
 						}
+						break;
 					case 3:
 						runningEmployee = false;
 						break;

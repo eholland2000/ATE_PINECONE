@@ -36,7 +36,7 @@ public class StoreManager {
 		/*
 		 * creates a txt file order request | not robustly tested
 		 */
-		ArrayList<Product> toOrder = store.order();
+		ArrayList<Product> toOrder = store.orderStoreProduct();
 		File f = new File("Order Request.txt");
 		FileWriter fw = new FileWriter(f);
 		

@@ -2,73 +2,161 @@ package application;
 
 import java.util.ArrayList;
 
-public class Store extends Location {
+public class Store {
 	private ArrayList<Product> cart = new ArrayList<Product>();
 	static ArrayList<Store> storeList;
+	
+	private String storeID;			// store PK
+	private String storeSM;			// SM FPK
+	private String wareID;			// warehouse FK | used for closest supplier location | calculated
+	
+	ArrayList<Product> inventoryIn = new ArrayList<Product>();		// currently at the location | mutable ( SM/ WSM/ POS )
+	ArrayList<Product> inventoryPar = new ArrayList<Product>();		// what should be at the location | fixed ( can be changed by HQ )
+		
+	
 	public Store(String storeID, String storeSM) 
 	{
-		super(storeID, storeSM);
-		// TODO Auto-generated constructor stub
+		this.storeID = storeID;
+		this.storeSM = storeSM;
 	}
-	public ArrayList<Store> getStores() {
+	public ArrayList<Store> getStores() 
+	{
 		return storeList;
 	}
-	
-	public void addStore(Store e) {
+	public void addStore(Store e)
+	{
 		storeList.add(e);
 	}
 	
-	private boolean processPayment(String c)
-	{
-		/*
-		 * Card assumed to be entered in "<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>"
-		 * if card number length entered is not 16 || pin length is not 3 they payment is not accepted
-		 * expire date is not checking for valid date, as long as there is one supplied in <MM/YY> format
-		 */
-		String[] card = c.split(",");
-		
-		try {
-		if( card[0].length() == 16 )
-		{
-			if( card[1].length() == 5 )
-			{
-				if( card[2].length() == 3 )
-				{
-					return true;
-				} } }
-		} catch ( IndexOutOfBoundsException e) {
-			return false; 
-		}
-		return false;
-	}
+	// ----- INVENTORY -----
 	private boolean updateProducts(ArrayList<Product> cart2)
 	{
 		for(int x = 0; x < cart2.size(); x++)
 		{
 			this.setInProduct( cart2.get(x), -1* cart2.get(x).getQuantity() );		// Quantity *-1 to reduce total quantity in store | NOT USED FOR REFUNDS
-			
 		}
 		return true;
 	}
-	
-	public void printInLevels()
+	public void setParProduct(Product p, int amount)
 	{
-		System.out.println("===== In  Levels =====");
+		/*
+		 *  used by HQ to set the par level of an item at a location
+		 *  Does not check integrity of amount input
+		 */
+		for(int i = 0; i < this.inventoryPar.size(); i++)
+		{
+			/*
+			 * Check first if the product exists
+			 */
+			if( this.inventoryPar.get(i).getSKU() == p.getSKU() )
+			{
+				// if the supplied SKU exist in the store's inventory the amount is updated
+				System.out.print( "SKU :" + this.inventoryPar.get(i).getSKU() + " @ " + this.inventoryPar.get(i).getQuantity() + "  -changed to-  ");
+						
+				p.setQuantity(amount);				// updates amount
+				this.inventoryPar.set(i, p);		// adds updated product quantity | removes old instance | does not change in levels as the product already exists in store 
+				
+				System.out.println( this.inventoryPar.get(i).getQuantity() );
+				return;
+			} 
+		}
+		/*
+		 * Else; just adds the new product
+		 */
+		p.setQuantity(amount); 			// updates amount to the sent value
+		this.inventoryPar.add(p);		// adds updated amount to par
+		
+		// creates new p1 to be added to inventory | otherwise the same variable is in both and wont allow for them to be independent
+		Product p1 = new Product(p.getSKU(), p.getPrice(), 0, p.getName(), p.getDesc());
+		this.inventoryIn.add(p1);		// adds to in
+		
+		
+		System.out.println( "SKU :" + p.getSKU() + " @ " + p.getQuantity() + "  -added to Par level-  ");
+	}
+	public boolean setInProduct(Product p, int amount)
+	{
+		/*
+		 * Used by SM/ WSM/ E (as POS) to update current in-store inventory
+		 * REQUIRED: Product exists in store
+		 */
+		for(int i = 0; i < this.inventoryPar.size(); i++)
+		{
+			// finds the Product
+			if( this.inventoryIn.get(i).getSKU() == p.getSKU() )
+			{
+				if( amount < 0 )
+				{
+					/*
+					 * negative values passed reduce the quantity by the amount
+					 */
+					System.out.println( "SKU :" + this.inventoryIn.get(i).getSKU() + " @ " + this.inventoryIn.get(i).getQuantity() + "  -reduced by-  " + amount);
+					
+					int level = this.inventoryIn.get(i).getQuantity();
+					this.inventoryIn.get(i).setQuantity(level + amount);	// '+' because amount is -
+					return true;
+				}					
+				if( amount >= 0 )
+				{
+					/*
+					 * Positive amounts are assumed to be retrieved from a count/ order and will be updated to the amount passed
+					 */
+					System.out.println( "SKU :" + this.inventoryIn.get(i).getSKU() + " @ " + this.inventoryIn.get(i).getQuantity() + "  -set to -  " + amount);
+
+					this.inventoryIn.get(i).setQuantity(amount);
+					// update arrays correctly
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	public ArrayList<Product> orderStoreProduct()
+	{
+		/*
+		 * Calculates the difference between Par-In and returns the result
+		 */
+		ArrayList<Product> order = new ArrayList<Product>();
+		for(int i = 0; i < this.inventoryPar.size(); i++)
+		{
+			int orderSKU		 = this.inventoryIn.get(i).getSKU();
+			double orderPrice	 = this.inventoryIn.get(i).getPrice();
+			String orderName	 = this.inventoryIn.get(i).getName();
+			int orderAmount 	 = this.inventoryPar.get(i).getQuantity() - this.inventoryIn.get(i).getQuantity();
+			
+			Product orderProduct = new Product(orderSKU, orderPrice, orderAmount, orderName, "");	// creates a temp object to be added to the order report | desc is excluded 
+			
+			order.add(orderProduct);		// adds the needed product
+		}
+				
+		return order;						// returns the list of requested products
+	}
+	
+	// ----- PRINTERS -----
+	public String printInLevels()
+	{
+		String s = "===== In  Levels =====\n";
 		for(int x =0; x < this.inventoryIn.size(); x++)
 		{
-			System.out.println(this.inventoryIn.get(x).getName() + "\t has \t" + this.inventoryIn.get(x).getQuantity());
+			s += (this.inventoryPar.get(x).getSKU() + ": " + this.inventoryIn.get(x).getName() + 
+									"\t has \t" + this.inventoryIn.get(x).getQuantity()) + "\n";
 		}
-		System.out.println("===== ========== =====\n");
+		s += "===== ========== =====\n";
+		
+		System.out.println(s);
+		return s;
 	}
-	public void printParLevels()
+	public String printParLevels()
 	{
-		System.out.println("===== Par Levels =====");
+		String s = "===== Par Levels =====\n";
 		for(int x =0; x < this.inventoryPar.size(); x++)
 		{
-			System.out.println(this.inventoryPar.get(x).getName() + "\t is parred at \t" + this.inventoryPar.get(x).getQuantity());
+			s += (this.inventoryPar.get(x).getSKU() + ": " + this.inventoryPar.get(x).getName() + 
+									"\t is parred at \t" + this.inventoryPar.get(x).getQuantity()) + "\n";
 		}
-		System.out.println("===== ========== =====\n");
+		s += "===== ========== =====\n";
 
+		System.out.println(s);
+		return s;
 	}
 	public String printCart()
 	{
@@ -80,7 +168,9 @@ public class Store extends Location {
 		combined += "===== ========== =====\n";
 		return combined;
 	}
-	public void flushCart() {
+	// ----- CART -----
+	public void flushCart() 
+	{
 		cart.removeAll(cart);
 	}
 	public String buildCart(int SKU)
@@ -120,7 +210,30 @@ public class Store extends Location {
 		}
 		return "Error: We could not find this Product";
 	}
-	public String placeOrder(String payment)
+	private boolean processPayment(String c)
+	{
+		/*
+		 * Card assumed to be entered in "<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>"
+		 * if card number length entered is not 16 || pin length is not 3 they payment is not accepted
+		 * expire date is not checking for valid date, as long as there is one supplied in <MM/YY> format
+		 */
+		String[] card = c.split(",");
+		
+		try {
+		if( card[0].length() == 16 )
+		{
+			if( card[1].length() == 5 )
+			{
+				if( card[2].length() == 3 )
+				{
+					return true;
+				} } }
+		} catch ( IndexOutOfBoundsException e) {
+			return false; 
+		}
+		return false;
+	}
+	public String placeOrder(String payment) throws Exception
 	{
 		// POS function to process an Order
 		// Payment is a credit card input in "<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>" format | see processPayment()
@@ -131,15 +244,9 @@ public class Store extends Location {
 				return "Success: enjoy your purcahse";
 			}
 		}
-		return "Error: something went wrong, please try again";
+		throw new Exception();
 	}
-	public String placeOrder(String cardNum, String expDate, String pin)
-	{
-		/*
-		 * Alternate input 
-		 */
-		return placeOrder(cardNum + "," + expDate + "," + pin);
-	}
+	// ----- MISC -----
 	public String addCustomer(String name, String cell)
 	{
 		/*
