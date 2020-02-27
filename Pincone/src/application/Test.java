@@ -162,14 +162,15 @@ public class Test {
 						break;
 					case 1:
 						JOptionPane.showMessageDialog(null, sm.store.printCart());
-						//command to flush cart
-						sm.store.flushCart();
 						break;
 					case 2:
 						try {
-							//sm.store.placeOrder(payment);
-							JOptionPane.showMessageDialog(null, sm.sendOrder());				// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
-						} catch (IOException e) {
+							String input = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, please enter your payment info in this format: \n<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>");
+							JOptionPane.showMessageDialog(null, sm.store.placeOrder(input));
+							//command to flush cart
+							sm.store.flushCart();
+							// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
+						} catch (Exception e) {
 							// should not occur
 							JOptionPane.showMessageDialog(null, "Error in sending order");
 							e.printStackTrace();
