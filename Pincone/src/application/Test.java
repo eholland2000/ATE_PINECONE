@@ -37,29 +37,29 @@ public class Test {
 			 *  	
 			 *  
 			 */
-			Object[] options = {"SM","WSM","E","HQ", "Turn off"};
+			Object[] options = {"Store Manager","WareHouse","Store Employee","HQ", "Shut Down"};
 			int n = JOptionPane.showOptionDialog(null, "Select your company role:",
-						"A Silly Question",
+						"FastFit Information System",
 						JOptionPane.YES_NO_CANCEL_OPTION,
 						JOptionPane.QUESTION_MESSAGE,
 						null,
 						options,
 						options[2]);
 			switch (n) {
-			case 0:
+			case 0: // Store Manager
 				boolean runningSM = true;
 				while (runningSM) {
-					Object[] SMOptions = {"Add item inventory", "Print Inventory Report", "Logout"};
+					Object[] SMOptions = {"Add Item Inventory", "Print Inventory Report", "Logout"};
 					//functionNo cuz we provide them functions here
 					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Store Manager. Select an option",
-							"A Silly Question",
+							"FastFit Information System - Store Manager",
 							JOptionPane.YES_NO_CANCEL_OPTION,
 							JOptionPane.QUESTION_MESSAGE,
 							null,
 							SMOptions,
 							SMOptions[2]);
 					switch (functionNo) {
-					case 0:
+					case 0: // Add Item Inventory
 						//(sku, price, quantity, name, description), inventory
 						//sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);
 						JTextField sku = new JTextField(5);
@@ -104,17 +104,17 @@ public class Test {
 						//(sku, price, quantity, name, description), inventory
 						//sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);
 						break;
-					case 1:
+					case 1: //Print Inventory Report
 						// used this as a test button 
 						JOptionPane.showMessageDialog(null, sm.store.printInLevels() + "\n" + sm.store.printParLevels());
 						break;
-					case 2:
+					case 2: //Logout
 						runningSM = false;
 						break;
 					}
 				}
 				break;
-			case 1:
+			case 1: //WH Manager
 				boolean runningWM = true;
 				while (runningWM) {
 					Object[] WMOptions = {"Add item inventory par at this store", "Set item inventory par at this store", "Logout"};
@@ -132,20 +132,20 @@ public class Test {
 					}
 				}
 				break;
-			case 2:
+			case 2: //Store Employee
 				boolean runningEmployee = true;
 				while (runningEmployee) {
-					Object[] employeeOptions = {"Build Your Cart", "Check Cart", "Checkout", "Logout"};
-					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, employee. Select an option",
-							"A Silly Question",
+					Object[] employeeOptions = {"Add Items", "View Cart", "Checkout", "Logout"};
+					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Employee. \nCurrent Cart: \n\n" + sm.store.printCart()
+																		 + "\nTotal: $" + sm.store.totalPriceString(),
+							"FastFit Information System - Store Employee",
 							JOptionPane.YES_NO_CANCEL_OPTION,
 							JOptionPane.QUESTION_MESSAGE,
 							null,
 							employeeOptions,
 							employeeOptions[1]);
 					switch (functionNo) {
-					case 0:
-						// Build Cart
+					case 0: //Add Items
 						JTextField sku = new JTextField(5);
 						JPanel p = new JPanel();
 						p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
@@ -164,29 +164,46 @@ public class Test {
 						}
 						sm.store.printCart();
 						break;
-					case 1:
-						// Check Cart
+					case 1: // View Cart
 						JOptionPane.showMessageDialog(null, sm.store.printCart());
 						break;
-					case 2:
-						// Checkout
-						try {
-							/*
-							 * TODO Break up inputs into 
-							 * 	Card number
-							 * 	EXP date
-							 * 	CV number/ Pin		
-							 * for better readibility 
-							 */
-							String input = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, please enter your payment info in this format: \n<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>");
-							JOptionPane.showMessageDialog(null, sm.store.placeOrder(input));
-							//command to flush cart
-							sm.store.flushCart();
-							// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
-						} catch (Exception e) {
-							// should not occur
-							JOptionPane.showMessageDialog(null, "Error in sending order");
-							e.printStackTrace();
+					case 2: // Checkout
+						boolean checkingOut = true;
+						while (checkingOut) {
+							try {
+								/*
+								 * TODO Break up inputs into 
+								 * 	Card number
+								 * 	EXP date
+								 * 	CV number/ Pin		
+								 * for better readibility 
+								 */
+								JTextField cardNum = new JTextField(16);
+								JTextField expDate = new JTextField(5);
+								JTextField securityCode = new JPasswordField(3);
+								Object[] message = {
+										"Enter the 16-Digit Card Number:", cardNum,
+										"Enter the Expiration Date:", expDate,
+										"Enter the 3-Digit Security Code:", securityCode
+								};
+								//String cardNum = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 16-digit Card Number:");
+								//String expDate = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the Expiration Date:  <'MM/YY'>");
+								//String securityCode = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 3-digit Security Code:");
+								int option = JOptionPane.showConfirmDialog(null, message, "Payment", JOptionPane.OK_CANCEL_OPTION);
+								if (option == JOptionPane.OK_OPTION) {
+									String input = cardNum.getText() + "," + expDate.getText()  + "," + securityCode.getText();
+									JOptionPane.showMessageDialog(null, sm.store.placeOrder(input));
+									sm.store.flushCart();
+									checkingOut = false;
+								} else {
+									checkingOut = false;
+								}
+								// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
+							} catch (Exception e) {
+								// should not occur
+								JOptionPane.showMessageDialog(null, "Error in sending order");
+								e.printStackTrace();
+							}
 						}
 						break;
 					case 3:
