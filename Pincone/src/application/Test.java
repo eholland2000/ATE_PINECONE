@@ -1,6 +1,5 @@
 package application;
 
-import java.io.IOException;
 import javax.swing.*;
 
 public class Test {
@@ -166,9 +165,13 @@ public class Test {
 					case 2:
 						try {
 							String input = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, please enter your payment info in this format: \n<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>");
-							JOptionPane.showMessageDialog(null, sm.store.placeOrder(input));
+							String placeOrderResult = sm.store.placeOrder(input);
+							JOptionPane.showMessageDialog(null, placeOrderResult);
+							
 							//command to flush cart
-							sm.store.flushCart();
+							if (!placeOrderResult.equals("Error: something went wrong, please try again")) {
+								sm.store.flushCart();
+							}
 							// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
 						} catch (Exception e) {
 							// should not occur
