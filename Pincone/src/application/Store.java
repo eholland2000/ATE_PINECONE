@@ -1,6 +1,8 @@
 package application;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Formatter;
 
 public class Store {
 	private ArrayList<Product> cart = new ArrayList<Product>();
@@ -160,13 +162,30 @@ public class Store {
 	}
 	public String printCart()
 	{
-		String combined = "===== Cart  size =====\n";
+		int itemCount = 0;
+		for (int a = 0; a < cart.size(); a++) {
+			itemCount += this.cart.get(a).getQuantity();
+		}
+		String combined = "===== =====Item Count: " + itemCount + "===== =====\n";
 		for(int x = 0; x < this.cart.size(); x++)
 		{
-			combined += "Found \t\t" + this.cart.get(x).getName() + " at \t\t"+ this.cart.get(x).getQuantity() + "\n";
+			combined += this.cart.get(x).getName() + " (x" + this.cart.get(x).getQuantity() + ")\n";
 		}
-		combined += "===== ========== =====\n";
+		combined += "===== ===================== =====\n";
 		return combined;
+	}
+	public double totalPrice() {
+		double sum = 0.0;
+		for (int a = 0; a < this.cart.size(); a++) {
+			sum += cart.get(a).getPrice() * cart.get(a).getQuantity();
+		}	
+		return sum;
+	}
+	public String totalPriceString() {
+		StringBuilder builder = new StringBuilder();
+		Formatter fmt = new Formatter(builder);
+		fmt.format("%.2f", totalPrice());
+		return builder.toString();
 	}
 	// ----- CART -----
 	public void flushCart() 
@@ -241,7 +260,7 @@ public class Store {
 		{
 			if( updateProducts( this.cart ))
 			{
-				return "Success: enjoy your purcahse";
+				return "Success! Thank you for shopping at FastFit! \n\n" + this.printCart() + "\nTotal: $" + totalPriceString();
 			}
 		}
 		throw new Exception();
