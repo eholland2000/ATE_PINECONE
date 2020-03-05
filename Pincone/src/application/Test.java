@@ -404,7 +404,7 @@ public class Test {
 			case 1: //WH Manager
 				boolean runningWM = true;
 				while (runningWM) {
-					Object[] WMOptions = {"Add item inventory par at this store", "Set item inventory par at this store", "Logout"};
+					Object[] WMOptions = {"", "", "Logout"};
 					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Warehouse manager. Select an option",
 							"A Silly Question",
 							JOptionPane.YES_NO_CANCEL_OPTION,
@@ -502,7 +502,7 @@ public class Test {
 			case 3:
 				boolean runningHQ = true;
 				while (runningHQ) {
-					Object[] HQOptions = {"Add a store location", "Set store location item inventory", "Logout"};
+					Object[] HQOptions = {"Add item inventory par at this store", "Set item inventory par at this store", "Add a store location", "Set store location item inventory", "Logout"};
 					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, HQ. Select an option",
 							"A Silly Question",
 							JOptionPane.YES_NO_CANCEL_OPTION,
