@@ -15,6 +15,7 @@ public class StoreManager extends Employee {
 	public StoreManager(Store store) {
 		super();
 		this.store = store;
+		store.setManager(this);
 		//this.store.setManager(this);
 	}
 	public Store getStore() {

@@ -3,8 +3,6 @@ package application;
 import java.util.ArrayList;
 
 public class Headquarters {
-	ArrayList<Product> pendingOrders = new ArrayList<Product>();	// table population on launch > HQ view 
-	ArrayList<Store> stores = new ArrayList<Store>();				// not to be used | concept
 	
 	/*
 	 * Required table view of all stores

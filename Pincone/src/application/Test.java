@@ -18,13 +18,21 @@ public class Test {
 		 * - On selecting employee, it asks you to type in username and storename. (we will automatically populate these instances)
 		 * - 
 		 */
+		
 	
 		boolean appRunning = true;
 		Store store = new Store();
-		StoreManager storeManager = new StoreManager();
+		StoreManager storeManager = new StoreManager(store);
 		Employee employee = new Employee();
 		Headquarters hq = new Headquarters();
 		Customer customer = new Customer();
+		Cart cart = new Cart();
+		
+		
+		
+		store.addNewProduct(new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball"), 90, 90);	// always return true ( will  not return false unless misused )
+		store.addNewProduct(new Product(1, 10.00, "Gloves"), 10, 10);
+		store.addNewProduct(new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm"), 200, 200);
 		
 		while (appRunning) {
 			Object[] options = {"Store Manager","WareHouse","Store Employee","HQ", "Shut Down"};
@@ -57,7 +65,8 @@ public class Test {
 							JTextField price = new JTextField(5);
 							JTextField name = new JTextField(5);
 							JTextField description = new JTextField(5);
-							JTextField inventory = new JTextField(5);
+							JTextField fullStock = new JTextField(5);
+							JTextField currentStock = new JTextField(5);
 							  
 							JPanel p = new JPanel();
 							p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
@@ -69,9 +78,10 @@ public class Test {
 							p.add(name);
 							p.add(new JLabel("Description"));
 							p.add(description);
-							p.add(new JLabel("Total in Inventory: "));
-							p.add(inventory);
-							
+							p.add(new JLabel("Expected Fully Stocked Quantity: "));
+							p.add(fullStock);
+							p.add(new JLabel("Current Quantity: "));
+							p.add(currentStock);
 							int result = JOptionPane.showConfirmDialog(null, p, 
 							         "Please Enter Item Information", JOptionPane.OK_CANCEL_OPTION);
 							if (result == JOptionPane.OK_OPTION) {
@@ -79,22 +89,19 @@ public class Test {
 							   System.out.println("price: " + price.getText());
 							  
 							   try {
-								   sm.store.setInProduct(new Product(Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), 
-									   Integer.parseInt(quantity.getText()), name.getText(), description.getText()), 
-									   Integer.parseInt(inventory.getText()));
+								   store.addNewProduct(new Product(Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), 
+									    name.getText(), description.getText()), Integer.parseInt(fullStock.getText()), Integer.parseInt(currentStock.getText()));
 								   
 								   JOptionPane.showMessageDialog(null, "Product successfully added!");
 							   } catch (NumberFormatException e) {
-								   JOptionPane.showMessageDialog(null, "Error");
+								   JOptionPane.showMessageDialog(null, "Error. One of your inputs are invalid!");
 							   }
 							}
 							  
-							//(sku, price, quantity, name, description), inventory
-							//sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);
 							break;
 						case 1: //Print Inventory Report
 							// used this as a test button 
-							JOptionPane.showMessageDialog(null, sm.store.printInLevels() + "\n" + sm.store.printParLevels());
+							JOptionPane.showMessageDialog(null, store.printInventory());
 							break;
 						case 2: //Logout
 							runningSM = false;
@@ -105,7 +112,7 @@ public class Test {
 				case 1: //WH Manager
 					boolean runningWM = true;
 					while (runningWM) {
-						Object[] WMOptions = {"Add item inventory par at this store", "Set item inventory par at this store", "Logout"};
+						Object[] WMOptions = {"Logout"};
 						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Warehouse manager. Select an option",
 								"A Silly Question",
 								JOptionPane.YES_NO_CANCEL_OPTION,
@@ -114,7 +121,7 @@ public class Test {
 								WMOptions,
 								WMOptions[2]);
 						switch (functionNo) {
-						case 2:
+						case 0:
 							runningWM = false;
 							break;
 						}
@@ -123,9 +130,9 @@ public class Test {
 				case 2: //Store Employee
 					boolean runningEmployee = true;
 					while (runningEmployee) {
-						Object[] employeeOptions = {"Add Items", "View Cart", "Checkout", "Logout"};
-						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Employee. \nCurrent Cart: \n\n" + sm.store.printCart()
-																			 + "\nTotal: $" + sm.store.totalPriceString(),
+						Object[] employeeOptions = {"Add Items to cart", "View Cart", "Checkout", "Logout"};
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Employee. \nCurrent Cart: \n\n" + cart.printCart()
+																			 + "\nTotal: $" + cart.getTotalPrice(),
 								"FastFit Information System - Store Employee",
 								JOptionPane.YES_NO_CANCEL_OPTION,
 								JOptionPane.QUESTION_MESSAGE,
@@ -135,25 +142,28 @@ public class Test {
 						switch (functionNo) {
 						case 0: //Add Items
 							JTextField sku = new JTextField(5);
+							JTextField quantity = new JTextField(5);
 							JPanel p = new JPanel();
 							p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
 							p.add(new JLabel("SKU:"));
 							p.add(sku);
+							p.add(new JLabel("Quantity:"));
+							p.add(quantity);
 							int result = JOptionPane.showConfirmDialog(null, p, 
-							         "Please Enter the SKU of the item you want to add", JOptionPane.OK_CANCEL_OPTION);
+							         "Please Enter the SKU of the item and its quantity you want to add", JOptionPane.OK_CANCEL_OPTION);
 							if (result == JOptionPane.OK_OPTION) {
 							   // done as System.out for debugging purposes; method call is still functional as normal
 								try {
-									System.out.println(sm.store.buildCart(Integer.parseInt(sku.getText())));
+									Product product = Product.getProductBySKU(Integer.parseInt(sku.getText()));
+									cart.addProduct(product, Integer.parseInt(quantity.getText()));
 									JOptionPane.showMessageDialog(null, "Product successfully added to cart!");
 								} catch ( NumberFormatException e ) {
 									JOptionPane.showMessageDialog(null, "Please enter a valid SKU");
 								}
 							}
-							sm.store.printCart();
 							break;
 						case 1: // View Cart
-							JOptionPane.showMessageDialog(null, sm.store.printCart());
+							JOptionPane.showMessageDialog(null, cart.printCart());
 							break;
 						case 2: // Checkout
 							boolean checkingOut = true;
@@ -180,8 +190,8 @@ public class Test {
 									int option = JOptionPane.showConfirmDialog(null, message, "Payment", JOptionPane.OK_CANCEL_OPTION);
 									if (option == JOptionPane.OK_OPTION) {
 										String input = cardNum.getText() + "," + expDate.getText()  + "," + securityCode.getText();
-										JOptionPane.showMessageDialog(null, sm.store.placeOrder(input));
-										sm.store.flushCart();
+										JOptionPane.showMessageDialog(null, store.placeOrder(input, cart));
+										cart.flushCart();
 										checkingOut = false;
 									} else {
 										checkingOut = false;
