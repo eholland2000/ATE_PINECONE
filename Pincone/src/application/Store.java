@@ -13,13 +13,15 @@ import java.util.HashMap;
  */
 public class Store {
 	private static ArrayList<Store> stores = new ArrayList<Store>();
+	private int storeID;
 	private StoreManager storeManager;
 	private ArrayList<Product> products;
 	//Our keys on the hashmap are the SKUs of the products.
 	private HashMap<Integer, Integer> fullStock;
 	private HashMap<Integer, Integer> currentStock;
 	
-	public Store() {
+	public Store(int storeID) {
+		this.storeID = storeID;
 		products = new ArrayList<Product>();
 		fullStock = new HashMap<Integer, Integer>();
 		currentStock = new HashMap<Integer, Integer>();
@@ -38,12 +40,23 @@ public class Store {
 		return stores;
 	}
 	
+	public static Store getStoreByID(int storeID) {
+		for (int i = 0; i < stores.size(); i++) {
+			if (stores.get(i).getStoreID() == storeID)
+				return stores.get(i);
+		}
+		return null;
+	}
 	public void setManager(StoreManager sm) {
 		this.storeManager = sm;
 	}
 	
 	public StoreManager getManager() {
 		return this.storeManager;
+	}
+	
+	public int getStoreID() {
+		return this.storeID;
 	}
 	
 	public void addNewProduct(Product p, int fullStockQuantity, int currentStockQuantity) {
@@ -58,6 +71,20 @@ public class Store {
 	
 	public void updateFullStock(Product p, int fullStockQuantity) {
 		fullStock.replace(p.getSKU(), fullStockQuantity);
+	}
+	
+	public static boolean updateStoreFullStock(int storeID, int sku, int quantity) {
+		try {
+			for (int i = 0; i < stores.size(); i++) {
+				Store currentStore = stores.get(i);
+				if (currentStore.getStoreID() == storeID) {
+					currentStore.updateFullStock(Product.getProductBySKU(sku), quantity);
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 	public boolean removeProduct(Product p) {
@@ -96,12 +123,31 @@ public class Store {
 		String total = "";
 		
 		total += "---------INVENTORY REPORT---------\n";
-		total += "ITEM | CURRENT STOCK | EXPECTED STOCK\n";
+		total += "SKU | ITEM | CURRENT STOCK | EXPECTED STOCK\n";
 		for (int i = 0; i < products.size(); i++) {
-			total += products.get(i).getName() + ": " + currentStock.get(products.get(i).getSKU()) + ", " + currentStock.get(products.get(i).getSKU()) + "\n";
+			total += products.get(i).getSKU() + " | " + products.get(i).getName() + " | " + currentStock.get(products.get(i).getSKU()) + " | " + fullStock.get(products.get(i).getSKU()) + "\n";
 		}
 		
 		return total;
+	}
+	
+	public String createRestockOrder() {
+		String runningString = "Restock order for Store " + this.getStoreID() + ":\n";
+		runningString += "SKU | ITEM | QUANTITY REQUIRED TO RESTOCK TO MAX\n";
+		for (int i = 0; i < products.size(); i++) {
+			int amount = fullStock.get(products.get(i).getSKU()) - currentStock.get(products.get(i).getSKU());
+			runningString += products.get(i).getSKU() + " | " + products.get(i).getName() + " | " + amount + "\n";
+		}
+		return runningString;
+	}
+	public static String printAllStoreInventories() {
+		String s = "";
+		for (int i = 0; i < stores.size(); i++) {
+			Store cStore = stores.get(i);
+			s += "Store " + cStore.getStoreID() + ":\n";
+			s += cStore.printInventory();
+		}
+		return s;
 	}
 	
 	

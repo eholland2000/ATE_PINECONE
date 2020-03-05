@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Headquarters {
 	
+	
 	/*
 	 * Required table view of all stores
 	 *  selecting store brings up IMS view

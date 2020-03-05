@@ -1,6 +1,8 @@
 package application;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class Test {
@@ -21,12 +23,15 @@ public class Test {
 		
 	
 		boolean appRunning = true;
-		Store store = new Store();
+		Store store = new Store(0);
 		StoreManager storeManager = new StoreManager(store);
 		Employee employee = new Employee();
 		Headquarters hq = new Headquarters();
 		Customer customer = new Customer();
 		Cart cart = new Cart();
+		
+		//This is really janky. Fix in next sprint
+		ArrayList<String> storeRestockReports = new ArrayList<String>();
 		
 		
 		
@@ -112,16 +117,22 @@ public class Test {
 				case 1: //WH Manager
 					boolean runningWM = true;
 					while (runningWM) {
-						Object[] WMOptions = {"Logout"};
+						Object[] WMOptions = {"View Open Store Orders", "Logout"};
 						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Warehouse manager. Select an option",
 								"A Silly Question",
 								JOptionPane.YES_NO_CANCEL_OPTION,
 								JOptionPane.QUESTION_MESSAGE,
 								null,
 								WMOptions,
-								WMOptions[2]);
+								WMOptions[1]);
 						switch (functionNo) {
 						case 0:
+							String r = "";
+							for (int i = 0; i < storeRestockReports.size(); i++) {
+								r += storeRestockReports.get(i);
+							}
+							JOptionPane.showMessageDialog(null, r);
+						case 1:
 							runningWM = false;
 							break;
 						}
@@ -213,7 +224,7 @@ public class Test {
 				case 3:
 					boolean runningHQ = true;
 					while (runningHQ) {
-						Object[] HQOptions = {"Add a store location", "Set store location item inventory", "Logout"};
+						Object[] HQOptions = {"Current Inventory Levels", "Adjust Fully Stocked Levels", "Send Store Report to Warehouse", "Logout"};
 						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, HQ. Select an option",
 								"A Silly Question",
 								JOptionPane.YES_NO_CANCEL_OPTION,
@@ -223,8 +234,49 @@ public class Test {
 								HQOptions[2]);
 						switch (functionNo) {
 						case 0:
+							JOptionPane.showMessageDialog(null, Store.printAllStoreInventories());
+							break;
+						case 1:
+							JTextField sku = new JTextField(5);
+							JTextField storeID = new JTextField(5);
+							JTextField fullyStocked = new JTextField(5);
+							  
+							JPanel p = new JPanel();
+							p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+							//p.add(new JLabel(Store.printAllStoreInventories()));
+							p.add(new JLabel("SKU:"));
+							p.add(sku);
+							p.add(new JLabel("Store ID:"));
+							p.add(storeID);
+							p.add(new JLabel("New Expected Fully Stocked Quantity"));
+							p.add(fullyStocked);
+							int result = JOptionPane.showConfirmDialog(null, p, 
+							         "Update Item stock", JOptionPane.OK_CANCEL_OPTION);
+							if (result == JOptionPane.OK_OPTION) {
+								if (Store.updateStoreFullStock(Integer.parseInt(storeID.getText()), Integer.parseInt(sku.getText()), Integer.parseInt(fullyStocked.getText()))) {
+									JOptionPane.showMessageDialog(null, "Success!");
+								} else {
+									JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+								}
+							}
 							break;
 						case 2:
+							p = new JPanel();
+							//p.add(new JLabel(Store.printAllStoreInventories()));
+							storeID = new JTextField(5);
+							p.add(new JLabel("Input store ID that requires restocking:"));
+							p.add(storeID);
+							result = JOptionPane.showConfirmDialog(null, p, 
+							         "Send Store Report to Warehouse", JOptionPane.OK_CANCEL_OPTION);
+							if (result == JOptionPane.OK_OPTION) {
+								//This is very janky and not OOP. We will need to fix this in the next sprint.
+								Store s = Store.getStoreByID(Integer.parseInt(storeID.getText()));
+								s.createRestockOrder();
+								storeRestockReports.add(s.createRestockOrder());
+								JOptionPane.showMessageDialog(null, "Success!");
+							}
+							break;
+						case 3:
 							runningHQ = false;
 							break;
 						}
@@ -234,7 +286,7 @@ public class Test {
 					appRunning = false;
 					break;
 			}
-			appRunning = false;
+			
 		}
 	}
 	
