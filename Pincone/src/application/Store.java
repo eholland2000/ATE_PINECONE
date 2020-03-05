@@ -11,6 +11,7 @@ import java.util.Formatter;
  * 	- Store manager
  */
 public class Store {
+	private ArrayList<Store> stores;
 	private StoreManager storeManager;
 	private ArrayList<Product> fullStock;
 	private ArrayList<Product> currentStock;
@@ -18,5 +19,14 @@ public class Store {
 		this.fullStock = fullStock;
 		this.currentStock = currentStock;
 		this.storeManager = storeManager;
+	}
+	public void addStore(Store s) {
+		this.stores.add(s);
+	}
+	public boolean removeStore(Store s) {
+		return this.stores.remove(s);
+	}
+	public ArrayList<Store> getStores() {
+		return this.stores;
 	}
 }

@@ -7,6 +7,7 @@ public class Customer {
 	private String firstName;
 	private String lastName;
 	private String DOB;
+	private Cart cart;
 	public Customer(String firstName, String lastName, String DOB) {
 		this.firstName = firstName;
 		this.lastName = lastName;

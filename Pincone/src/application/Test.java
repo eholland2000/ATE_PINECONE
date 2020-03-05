@@ -18,6 +18,214 @@ public class Test {
 		 * - On selecting employee, it asks you to type in username and storename. (we will automatically populate these instances)
 		 * - 
 		 */
+	
+		boolean appRunning = true;
+		Store store = new Store();
+		StoreManager storeManager = new StoreManager();
+		Employee employee = new Employee();
+		Headquarters hq = new Headquarters();
+		Customer customer = new Customer();
+		
+		while (appRunning) {
+			Object[] options = {"Store Manager","WareHouse","Store Employee","HQ", "Shut Down"};
+			int n = JOptionPane.showOptionDialog(null, "Click a role to login:",
+					"FastFit Information System",
+					JOptionPane.YES_NO_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					options,
+					options[4]);
+				
+				switch (n) {
+				case 0: // Store Manager
+					boolean runningSM = true;
+					while (runningSM) {
+						Object[] SMOptions = {"Add Item Inventory", "Print Inventory Report", "Logout"};
+						//functionNo cuz we provide them functions here
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Store Manager. Select an option",
+								"FastFit Information System - Store Manager",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								SMOptions,
+								SMOptions[2]);
+						switch (functionNo) {
+						case 0: // Add Item Inventory
+							//(sku, price, quantity, name, description), inventory
+							//sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);
+							JTextField sku = new JTextField(5);
+							JTextField price = new JTextField(5);
+							JTextField name = new JTextField(5);
+							JTextField description = new JTextField(5);
+							JTextField inventory = new JTextField(5);
+							  
+							JPanel p = new JPanel();
+							p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+							p.add(new JLabel("SKU:"));
+							p.add(sku);
+							p.add(new JLabel("Price:"));
+							p.add(price);
+							p.add(new JLabel("Name: "));
+							p.add(name);
+							p.add(new JLabel("Description"));
+							p.add(description);
+							p.add(new JLabel("Total in Inventory: "));
+							p.add(inventory);
+							
+							int result = JOptionPane.showConfirmDialog(null, p, 
+							         "Please Enter Item Information", JOptionPane.OK_CANCEL_OPTION);
+							if (result == JOptionPane.OK_OPTION) {
+							   System.out.println("sku: " + sku.getText());
+							   System.out.println("price: " + price.getText());
+							  
+							   try {
+								   sm.store.setInProduct(new Product(Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), 
+									   Integer.parseInt(quantity.getText()), name.getText(), description.getText()), 
+									   Integer.parseInt(inventory.getText()));
+								   
+								   JOptionPane.showMessageDialog(null, "Product successfully added!");
+							   } catch (NumberFormatException e) {
+								   JOptionPane.showMessageDialog(null, "Error");
+							   }
+							}
+							  
+							//(sku, price, quantity, name, description), inventory
+							//sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);
+							break;
+						case 1: //Print Inventory Report
+							// used this as a test button 
+							JOptionPane.showMessageDialog(null, sm.store.printInLevels() + "\n" + sm.store.printParLevels());
+							break;
+						case 2: //Logout
+							runningSM = false;
+							break;
+						}
+					}
+					break;
+				case 1: //WH Manager
+					boolean runningWM = true;
+					while (runningWM) {
+						Object[] WMOptions = {"Add item inventory par at this store", "Set item inventory par at this store", "Logout"};
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Warehouse manager. Select an option",
+								"A Silly Question",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								WMOptions,
+								WMOptions[2]);
+						switch (functionNo) {
+						case 2:
+							runningWM = false;
+							break;
+						}
+					}
+					break;
+				case 2: //Store Employee
+					boolean runningEmployee = true;
+					while (runningEmployee) {
+						Object[] employeeOptions = {"Add Items", "View Cart", "Checkout", "Logout"};
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Employee. \nCurrent Cart: \n\n" + sm.store.printCart()
+																			 + "\nTotal: $" + sm.store.totalPriceString(),
+								"FastFit Information System - Store Employee",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								employeeOptions,
+								employeeOptions[1]);
+						switch (functionNo) {
+						case 0: //Add Items
+							JTextField sku = new JTextField(5);
+							JPanel p = new JPanel();
+							p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+							p.add(new JLabel("SKU:"));
+							p.add(sku);
+							int result = JOptionPane.showConfirmDialog(null, p, 
+							         "Please Enter the SKU of the item you want to add", JOptionPane.OK_CANCEL_OPTION);
+							if (result == JOptionPane.OK_OPTION) {
+							   // done as System.out for debugging purposes; method call is still functional as normal
+								try {
+									System.out.println(sm.store.buildCart(Integer.parseInt(sku.getText())));
+									JOptionPane.showMessageDialog(null, "Product successfully added to cart!");
+								} catch ( NumberFormatException e ) {
+									JOptionPane.showMessageDialog(null, "Please enter a valid SKU");
+								}
+							}
+							sm.store.printCart();
+							break;
+						case 1: // View Cart
+							JOptionPane.showMessageDialog(null, sm.store.printCart());
+							break;
+						case 2: // Checkout
+							boolean checkingOut = true;
+							while (checkingOut) {
+								try {
+									/*
+									 * TODO Break up inputs into 
+									 * 	Card number
+									 * 	EXP date
+									 * 	CV number/ Pin		
+									 * for better readibility 
+									 */
+									JTextField cardNum = new JTextField(16);
+									JTextField expDate = new JTextField(5);
+									JTextField securityCode = new JPasswordField(3);
+									Object[] message = {
+											"Enter the 16-Digit Card Number:", cardNum,
+											"Enter the Expiration Date: (MM/YY)", expDate,
+											"Enter the 3-Digit Security Code:", securityCode
+									};
+									//String cardNum = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 16-digit Card Number:");
+									//String expDate = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the Expiration Date:  <'MM/YY'>");
+									//String securityCode = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 3-digit Security Code:");
+									int option = JOptionPane.showConfirmDialog(null, message, "Payment", JOptionPane.OK_CANCEL_OPTION);
+									if (option == JOptionPane.OK_OPTION) {
+										String input = cardNum.getText() + "," + expDate.getText()  + "," + securityCode.getText();
+										JOptionPane.showMessageDialog(null, sm.store.placeOrder(input));
+										sm.store.flushCart();
+										checkingOut = false;
+									} else {
+										checkingOut = false;
+									}
+									// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
+								} catch (Exception e) {
+									// should not occur
+									JOptionPane.showMessageDialog(null, "Error in sending order");
+									e.printStackTrace();
+								}
+							}
+							break;
+						case 3:
+							runningEmployee = false;
+							break;
+						}
+					}
+					break;
+				case 3:
+					boolean runningHQ = true;
+					while (runningHQ) {
+						Object[] HQOptions = {"Add a store location", "Set store location item inventory", "Logout"};
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, HQ. Select an option",
+								"A Silly Question",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								HQOptions,
+								HQOptions[2]);
+						switch (functionNo) {
+						case 0:
+							break;
+						case 2:
+							runningHQ = false;
+							break;
+						}
+					}
+					break;
+				case 4:
+					appRunning = false;
+					break;
+			}
+			appRunning = false;
+		}
 	}
 	
 	//OLD PSVM
