@@ -1,7 +1,11 @@
 package application;
 
-public class Launcher {
+import java.util.ArrayList;
 
-	//public String[] populateCustomers()
-	//public String[] populateStores()
+public class Launcher {
+	/* 
+	 * Used with FromTable to populate Store objects 
+	 * 
+	 * Handles data initialization and calls GUI to launch
+	 */
 }

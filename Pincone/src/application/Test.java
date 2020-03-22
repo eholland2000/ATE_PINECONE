@@ -26,7 +26,7 @@ public class Test {
 		Store store = new Store(0);
 		StoreManager storeManager = new StoreManager(store);
 		Employee employee = new Employee();
-		Headquarters hq = new Headquarters();
+		HeadQuarters hq = new HeadQuarters();
 		Customer customer = new Customer();
 		Cart cart = new Cart();
 		

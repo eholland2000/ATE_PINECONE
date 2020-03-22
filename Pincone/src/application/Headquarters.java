@@ -2,10 +2,14 @@ package application;
 
 import java.util.ArrayList;
 
-public class Headquarters {
-	
-	
+public class HeadQuarters {
+	ArrayList <Store> Stores = new ArrayList <Store>();
 	/*
+	 * Populated data object
+	 *  Holds all information relating to every store/ warehouse
+	 *  HQ > Master Product List > Store/Warehouse > Products per Store | Store Managers > Employees
+	 *  
+	 * 
 	 * Required table view of all stores
 	 *  selecting store brings up IMS view
 	 *  from IMS view HQ can edit values to Par levels only
