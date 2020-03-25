@@ -6,6 +6,11 @@ import java.awt.FlowLayout;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,35 +32,6 @@ public class PanelBuilder {
 	/*
 	 * JFrame defined to fixed resolution > Layouts are absolute ( lazy )
 	 */
-	static public JPanel login()
-	{
-		/*
-		 * Selection of profile buttons
-		 * 	Temporary log in to each kind of profile
-		 * 	No log in integrity
-		 */
-		JPanel panel = new JPanel();
-		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		
-		JButton swap = new JButton("swap");
-		panel.add(swap);
-		swap.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
-		
-		
-		JButton b = new JButton("Bitch");
-		panel.add(b);
-		b.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("!^#@@");
-			}
-		});
-		
-		
-		return panel;
-	}
 	static public JPanel POS()
 	{
 		JPanel panel = new JPanel();
@@ -182,65 +158,110 @@ public class PanelBuilder {
 		JButton btnCheckOot = new JButton("Check Oot");
 		btnCheckOot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// pop up
-				boolean checkingOut = true;
-				while (checkingOut) {
-					try {
-						/*
-						 * TODO Break up inputs into 
-						 * 	Card number
-						 * 	EXP date
-						 * 	CV number/ Pin		
-						 * for better readibility 
-						 */
-						JTextField cardNum = new JTextField(16);
-						JTextField expDate = new JTextField(5);
-						JTextField securityCode = new JPasswordField(3);
-						Object[] message = {
-								"Enter the 16-Digit Card Number:", cardNum,
-								"Enter the Expiration Date: (MM/YY)", expDate,
-								"Enter the 3-Digit Security Code:", securityCode
-						};
-						//String cardNum = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 16-digit Card Number:");
-						//String expDate = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the Expiration Date:  <'MM/YY'>");
-						//String securityCode = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 3-digit Security Code:");
-						int option = JOptionPane.showConfirmDialog(null, message, "Payment", JOptionPane.OK_CANCEL_OPTION);
-						if (option == JOptionPane.OK_OPTION) {
-							String input = cardNum.getText() + "," + expDate.getText()  + "," + securityCode.getText();
-							JOptionPane.showMessageDialog(null, GUI.currentStore().checkoutCart(Cart.products));
-							checkingOut = false;
-						} else {
-							checkingOut = false;
+				// Enter valid payment | or cancel to return to add item view
+				while ( true ) {
+					JTextField cardNum = new JTextField(16);
+					JTextField expDate = new JTextField(5);
+					JTextField securityCode = new JPasswordField(3);
+					Object[] message = {
+							"Enter the 16-Digit Card Number:", cardNum,
+							"Enter the Expiration Date: (MM/YYYY)", expDate,
+							"Enter the 3-Digit Security Code:", securityCode
+					};
+
+					int option = 1;					// return from payment | allows cancel/ exit to exit payment
+					/*
+					 * is payment entered valid?
+					 */
+					option = JOptionPane.showConfirmDialog(null, message, "Payment", JOptionPane.OK_CANCEL_OPTION);		
+					
+					try{
+						new BigInteger(cardNum.getText().replaceAll("\\s", ""));			// all numbers | no spaces	: 16 nums > int ^lim
+						Integer.parseInt(securityCode.getText().replaceAll("\\s", ""));		// all numbers | no spaces
+						
+						// gets entered MM/YYYY
+						String date = expDate.getText();
+						int mon = Integer.parseInt(date.substring(0, date.indexOf('/')));
+						int year = Integer.parseInt(date.substring(date.indexOf('/') + 1));
+
+						// gets local MM/YYYY
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+						String today = formatter.format(LocalDate.now());
+						int tMon = Integer.parseInt(today.substring(0, today.indexOf('/')));
+						int tYear = Integer.parseInt(today.substring(today.indexOf('/') + 1));
+						
+						System.out.println(mon + "|" + year + "   " + today);
+						
+						if ( option == JOptionPane.OK_OPTION ) 
+						{
+							if( year <= tYear || (mon <= tMon && year == tYear) )
+							{ 	// date invalid 
+								throw new NumberFormatException("Date Invalid");
+							} 
+							
+							if ( cardNum.getText().length() == 16 &&  securityCode.getText().length() == 3 ) {
+								// card length & pin length test | date | valid entry
+									// "Reciept"
+								String reciept = "";
+								String[][] cart = Cart.cartToPrint();
+								for( String[] line : cart )
+								{
+									// Compiles cart to reciept
+									reciept += line[1] +" -@"+ line[2] +" : $"+ line[3] +" each for subtotal $"+ line[4] + "\n";
+								}
+								reciept += "-------- ---------------";
+								reciept += "\nTotal: $" + Cart.total;
+								JOptionPane.showMessageDialog(null, reciept + "\n\n" + GUI.currentStore().checkoutCart(Cart.products));
+								
+								Cart.flushCart();
+								model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
+								
+								modelTotal.removeRow(0);	// removes old row
+								modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
+								
+								txtSku.setValue(0);			// resets spinners
+								spinner.setValue(1);
+								
+								panel.revalidate();
+								panel.repaint();
+								break;
+							}
 						}
-						// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
-					} catch (Exception e) {
-						// should not occur
-						JOptionPane.showMessageDialog(null, "Error in sending order");
-						e.printStackTrace();
+					} catch( NumberFormatException e ) {
+						//do nothing, returned to payment pop
+					}
+					if( option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION )
+					{	// canceled
+						break;
 					}
 				}
-				
+			}
+		});
+		btnCheckOot.setBounds(522, 444, 120, 23);
+		panel.add(btnCheckOot);
+		
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				Cart.flushCart();
 				model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
 				
 				modelTotal.removeRow(0);	// removes old row
 				modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
 				
-				txtSku.setValue(0);		// resets spinners
+				txtSku.setValue(0);			// resets spinners
 				spinner.setValue(1);
 				
 				panel.revalidate();
 				panel.repaint();
 			}
 		});
-		btnCheckOot.setBounds(522, 444, 120, 23);
-		panel.add(btnCheckOot);
+		btnCancel.setBounds(770, 444, 154, 23);
+		panel.add(btnCancel);
 		
 		return panel;
 	}
-	
-	/*
-dat	public JPanel managerView()
+	static public JPanel managerView()
 	{
 		/*
 		 * View
@@ -249,8 +270,10 @@ dat	public JPanel managerView()
 		 * 	Edit in-store Product level				
 		 * Notes
 		 * 	Re-stock is automatically sent | 
-		 *
+		 */
+		return new JPanel();
 	}
+	/*
 	public JPanel hqView(int x)
 	{
 		/* x 	: used for switch case on what to return

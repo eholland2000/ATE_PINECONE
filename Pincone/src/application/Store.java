@@ -120,6 +120,7 @@ public class Store {
 					 *  WARNING : if the amount sold > inStock, the sale will process regardless ( as product physically exists, but is not in system )
 					 */
 					getProductBySKU(thatIn.getSKU()).setStockIn( getProductBySKU(thatIn.getSKU()).getStockIn() - cart.get(x).getStockIn() );
+					
 				}
 			}
 		}
