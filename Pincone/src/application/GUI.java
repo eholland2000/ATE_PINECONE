@@ -183,18 +183,20 @@ public class GUI extends JFrame {
 		toReturn.add(hq);
 		hq.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				/*
+				
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				visiblePane = PanelBuilder.hq(0);
+				ArrayList<Store> stores = new ArrayList<>();
+				stores.add(store);
+				visiblePane = PanelBuilder.hq(stores);
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 
 				contentPane.add(visiblePane);
 				contentPane.revalidate();
 				contentPane.repaint();
-				*/
+				
 			}
 		});
 		
