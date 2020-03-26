@@ -1,243 +1,110 @@
 package application;
 
+import java.io.Reader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.HashMap;
 
+/*
+ * A store needs:
+ * 	- Fully stock levels
+ * 	- Current stock levels
+ * 	- Store manager
+ */
 public class Store {
-	private ArrayList<Product> cart = new ArrayList<Product>();
-	static ArrayList<Store> storeList;
+	private static ArrayList<Store> stores = new ArrayList<Store>();	// ref to all store objects
+	private int storeID;												// used to ID + get from tables
+	private StoreManager storeManager;									// Ref to sm object
+	private ArrayList<Employee> employees = new ArrayList<Employee>();	// workers in store | can only access their store POS
+	private ArrayList<Product> products = new ArrayList<Product>();		// Holds values for Product objects ( see MSRB / Sales Prices : ignore base price if(alt price set)) 
+																		// not static as each Store object can have a different Product list
 	
-	private String storeID;			// store PK
-	private String storeSM;			// SM FPK
-	private String wareID;			// warehouse FK | used for closest supplier location | calculated
+	/*
+	 * DEPRECIATED 
+	// Our keys on the hashmap are the SKUs of the products.
+	private HashMap<Integer, Integer> fullStock;
+	private HashMap<Integer, Integer> currentStock;
 	
-	ArrayList<Product> inventoryIn = new ArrayList<Product>();		// currently at the location | mutable ( SM/ WSM/ POS )
-	ArrayList<Product> inventoryPar = new ArrayList<Product>();		// what should be at the location | fixed ( can be changed by HQ )
-		
-	
-	public Store(String storeID, String storeSM) 
-	{
+	*/
+	public Store(int storeID) {
 		this.storeID = storeID;
-		this.storeSM = storeSM;
+				
+		// products = FromTable.getStoreProduct(storeID);		// from database
+		stores.add(this);							// + to list for indexing
 	}
-	public ArrayList<Store> getStores() 
-	{
-		return storeList;
+	public Product getProductBySKU(int SKU) {
+		for (int i = 0; i < this.products.size(); i++) {
+			if (this.products.get(i).getSKU() == SKU)
+				return this.products.get(i);
+		}
+		return null;
 	}
-	public void addStore(Store e)
-	{
-		storeList.add(e);
+	public ArrayList<Product> getProducts() {
+		return products;
 	}
 	
-	// ----- INVENTORY -----
-	private boolean updateProducts(ArrayList<Product> cart2)
-	{
-		for(int x = 0; x < cart2.size(); x++)
-		{
-			this.setInProduct( cart2.get(x), -1* cart2.get(x).getQuantity() );		// Quantity *-1 to reduce total quantity in store | NOT USED FOR REFUNDS
-		}
-		return true;
+	public static void addStore(Store s) {
+		stores.add(s);
 	}
-	public void setParProduct(Product p, int amount)
-	{
-		/*
-		 *  used by HQ to set the par level of an item at a location
-		 *  Does not check integrity of amount input
-		 */
-		for(int i = 0; i < this.inventoryPar.size(); i++)
-		{
-			/*
-			 * Check first if the product exists
-			 */
-			if( this.inventoryPar.get(i).getSKU() == p.getSKU() )
-			{
-				// if the supplied SKU exist in the store's inventory the amount is updated
-				System.out.print( "SKU :" + this.inventoryPar.get(i).getSKU() + " @ " + this.inventoryPar.get(i).getQuantity() + "  -changed to-  ");
-						
-				p.setQuantity(amount);				// updates amount
-				this.inventoryPar.set(i, p);		// adds updated product quantity | removes old instance | does not change in levels as the product already exists in store 
-				
-				System.out.println( this.inventoryPar.get(i).getQuantity() );
-				return;
-			} 
-		}
-		/*
-		 * Else; just adds the new product
-		 */
-		p.setQuantity(amount); 			// updates amount to the sent value
-		this.inventoryPar.add(p);		// adds updated amount to par
-		
-		// creates new p1 to be added to inventory | otherwise the same variable is in both and wont allow for them to be independent
-		Product p1 = new Product(p.getSKU(), p.getPrice(), 0, p.getName(), p.getDesc());
-		this.inventoryIn.add(p1);		// adds to in
-		
-		
-		System.out.println( "SKU :" + p.getSKU() + " @ " + p.getQuantity() + "  -added to Par level-  ");
+	public static boolean removeStore(Store s) {
+		return stores.remove(s);
 	}
-	public boolean setInProduct(Product p, int amount)
-	{
-		/*
-		 * Used by SM/ WSM/ E (as POS) to update current in-store inventory
-		 * REQUIRED: Product exists in store
-		 */
-		for(int i = 0; i < this.inventoryPar.size(); i++)
-		{
-			// finds the Product
-			if( this.inventoryIn.get(i).getSKU() == p.getSKU() )
-			{
-				if( amount < 0 )
-				{
-					/*
-					 * negative values passed reduce the quantity by the amount
-					 */
-					System.out.println( "SKU :" + this.inventoryIn.get(i).getSKU() + " @ " + this.inventoryIn.get(i).getQuantity() + "  -reduced by-  " + amount);
-					
-					int level = this.inventoryIn.get(i).getQuantity();
-					this.inventoryIn.get(i).setQuantity(level + amount);	// '+' because amount is -
-					return true;
-				}					
-				if( amount >= 0 )
-				{
-					/*
-					 * Positive amounts are assumed to be retrieved from a count/ order and will be updated to the amount passed
-					 */
-					System.out.println( "SKU :" + this.inventoryIn.get(i).getSKU() + " @ " + this.inventoryIn.get(i).getQuantity() + "  -set to -  " + amount);
-
-					this.inventoryIn.get(i).setQuantity(amount);
-					// update arrays correctly
-					return true;
-				}
-			}
-		}
-		return false;
+	public static ArrayList<Store> getStores() {
+		return stores;
 	}
-	public ArrayList<Product> orderStoreProduct()
-	{
-		/*
-		 * Calculates the difference between Par-In and returns the result
-		 */
-		ArrayList<Product> order = new ArrayList<Product>();
-		for(int i = 0; i < this.inventoryPar.size(); i++)
-		{
-			int orderSKU		 = this.inventoryIn.get(i).getSKU();
-			double orderPrice	 = this.inventoryIn.get(i).getPrice();
-			String orderName	 = this.inventoryIn.get(i).getName();
-			int orderAmount 	 = this.inventoryPar.get(i).getQuantity() - this.inventoryIn.get(i).getQuantity();
-			
-			Product orderProduct = new Product(orderSKU, orderPrice, orderAmount, orderName, "");	// creates a temp object to be added to the order report | desc is excluded 
-			
-			order.add(orderProduct);		// adds the needed product
+	public static Store getStoreByID(int storeID) {
+		for (int i = 0; i < stores.size(); i++) {
+			if (stores.get(i).getStoreID() == storeID)
+				return stores.get(i);
 		}
-				
-		return order;						// returns the list of requested products
+		return null;
 	}
 	
-	// ----- PRINTERS -----
-	public String printInLevels()
+	public Employee getEmployee( int id )	throws NullPointerException
 	{
-		String s = "===== In  Levels =====\n";
-		for(int x =0; x < this.inventoryIn.size(); x++)
+		for( Employee e : this.employees )
 		{
-			s += (this.inventoryPar.get(x).getSKU() + ": " + this.inventoryIn.get(x).getName() + 
-									"\t has \t" + this.inventoryIn.get(x).getQuantity()) + "\n";
+			if( e.ID == id )
+				return e;
 		}
-		s += "===== ========== =====\n";
+		return null;
+	}
+	public int getStoreID() {
+		return this.storeID;
+	}
+	public void setManager(StoreManager sm) {
+		this.storeManager = sm;
+	}
+	public StoreManager getManager() {
+		return this.storeManager;
+	}
+	
+	public void addNewProduct(Product p, int fullStockQuantity, int currentStockQuantity) {
+			
+		if( getProductBySKU(p.getSKU()) == null )
+		{ 	// makes a new entry
+			p.setStockIn(currentStockQuantity);
+			p.setStockPar(fullStockQuantity);
+			products.add(p);
+		} else {
+			updateCurrentStock( p, currentStockQuantity );
+		}
+	}
+	public void updateCurrentStock(Product p, int currentStockQuantity) {
+		getProductBySKU(p.getSKU()).setStockIn(currentStockQuantity);
+	}
+	public void updateFullStock(Product p, int fullStockQuantity) {
+		getProductBySKU(p.getSKU()).setStockPar(fullStockQuantity);
+	}
 		
-		System.out.println(s);
-		return s;
-	}
-	public String printParLevels()
-	{
-		String s = "===== Par Levels =====\n";
-		for(int x =0; x < this.inventoryPar.size(); x++)
-		{
-			s += (this.inventoryPar.get(x).getSKU() + ": " + this.inventoryPar.get(x).getName() + 
-									"\t is parred at \t" + this.inventoryPar.get(x).getQuantity()) + "\n";
-		}
-		s += "===== ========== =====\n";
-
-		System.out.println(s);
-		return s;
-	}
-	public String printCart()
-	{
-		int itemCount = 0;
-		for (int a = 0; a < cart.size(); a++) {
-			itemCount += this.cart.get(a).getQuantity();
-		}
-		String combined = "===== =====Item Count: " + itemCount + "===== =====\n";
-		for(int x = 0; x < this.cart.size(); x++)
-		{
-			combined += this.cart.get(x).getName() + " (x" + this.cart.get(x).getQuantity() + ")\n";
-		}
-		combined += "===== ===================== =====\n";
-		return combined;
-	}
-	public double totalPrice() {
-		double sum = 0.0;
-		for (int a = 0; a < this.cart.size(); a++) {
-			sum += cart.get(a).getPrice() * cart.get(a).getQuantity();
-		}	
-		return sum;
-	}
-	public String totalPriceString() {
-		StringBuilder builder = new StringBuilder();
-		Formatter fmt = new Formatter(builder);
-		fmt.format("%.2f", totalPrice());
-		return builder.toString();
-	}
-	// ----- CART -----
-	public void flushCart() 
-	{
-		cart.removeAll(cart);
-	}
-	public String buildCart(int SKU)
-	{
+	public String placeOrder(String paymentInfo, ArrayList<Product> cart) {
 		/*
-		 * POS add item function
-		 * on call the item passed is checked against store inventory
-		 * Does not update inventory until order is placed
+		 * At POS terminal
 		 */
-		for(int i = 0; i < this.inventoryPar.size(); i++)
-		{
-			/*
-			 * Check first if the product exists within the store
-			 */
-			if( this.inventoryIn.get(i).getSKU() == SKU )
-			{
-				for(int x = 0; x < cart.size(); x++)
-				{
-					/*
-					 * Checks if the product is in the cart | if so quantity is increased
-					 */
-					if( this.cart.get(x).getSKU() == SKU )
-					{
-						Product p = this.cart.get(x);
-						p.setQuantity( p.getQuantity() + 1);		// increases quantity by 1
-						this.cart.set(x, p);
-						
-						return "Success: Product quantity was updated";
-					}				
-					
-				}
-				Product p = this.inventoryIn.get(i);
-				Product p1 = new Product(p.getSKU(), p.getPrice(), 1, p.getName(), p.getDesc());		// adds 1 of the item ( starts the cart )
-				this.cart.add(p1);
-				return "Success: Product was added to the cart";
-			}
-		}
-		return "Error: We could not find this Product";
-	}
-	private boolean processPayment(String c)
-	{
-		/*
-		 * Card assumed to be entered in "<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>"
-		 * if card number length entered is not 16 || pin length is not 3 they payment is not accepted
-		 * expire date is not checking for valid date, as long as there is one supplied in <MM/YY> format
-		 */
-		String[] card = c.split(",");
-		
+		checkoutCart(cart);
+		String[] card = paymentInfo.split(",");
+				
 		try {
 		if( card[0].length() == 16 )
 		{
@@ -245,37 +112,73 @@ public class Store {
 			{
 				if( card[2].length() == 3 )
 				{
-					return true;
+					return "Payment successfully processed.";
 				} } }
 		} catch ( IndexOutOfBoundsException e) {
-			return false; 
+			return "Error, please try again."; 
 		}
-		return false;
+		return "Error, please try again.";
 	}
-	public String placeOrder(String payment) throws Exception
-	{
-		// POS function to process an Order
-		// Payment is a credit card input in "<Number(16)>, <expire date in 'MM/YY'>, <pin(3)>" format | see processPayment()
-		if( processPayment(payment) )
-		{
-			if( updateProducts( this.cart ))
-			{
-				return "Success! Thank you for shopping at FastFit! \n\n" + this.printCart() + "\nTotal: $" + totalPriceString();
+	public String checkoutCart(ArrayList<Product> cart) {
+		/*
+		 * Reduces inventory by the static Cart.products
+		 */
+		for( Product inStore : this.products )
+		{	// gets each Product
+			for( int x = 0; x < cart.size(); x++)
+			{	// check each product against each item in cart
+				if( cart.get(x).getSKU() == inStore.getSKU()) 
+				{
+					/*
+					 *  gets Product object in the store
+					 *  reduces stockIn level by the amount in the cart
+					 *  
+					 *  WARNING : if the amount sold > inStock, the sale will process regardless ( as product physically exists, but is not in system )
+					 */
+					System.out.println(inStore.getStockIn() + "\t\t\t" +  cart.get(x).getStockIn());
+					updateCurrentStock( inStore, inStore.getStockIn() - cart.get(x).getStockIn() );
+				}
 			}
 		}
-		throw new Exception();
+		return "Thank you, enjoy your purchase!";
 	}
-	// ----- MISC -----
-	public String addCustomer(String name, String cell)
-	{
+	
+	public String[][] inventoryToPrint() {
 		/*
-		 * name : "first last"
-		 * cell : xxx-xxx-xxxx
-		 * addy : Street city, ST, postal code
+		 * send 2D array to build a row involving a store with JTable
 		 * 
-		 * Dummy method, data is not saved 
+		 * [ SKU ] [ NAME ] [ EXPECTED STOCK ] [ CURRENT STOCK ] [ PRICE ]
+		 * 
 		 */
+		String[][] row = new String[this.products.size()][5];		// [row][col]
 		
-		return new String(name + " was sucessfully added");
+		int insertRow = 0;
+		for( Product at : this.products )
+		{
+			row[insertRow][0] = at.getSKU() + "";
+			row[insertRow][1] = at.getName();
+			row[insertRow][2] = at.getStockPar() + "";
+			row[insertRow][3] = at.getStockIn()  + "";
+			row[insertRow][4] = at.getPrice() + "";
+			insertRow++;
+		}
+		
+		return row;
+	}
+	
+	public String[][] createRestockOrder() {
+		// [ SKU ][ NAME ][ ORDERING ]
+		String[][] row = new String[this.products.size()][3];		// [row][col]
+		
+		int insertRow = 0;
+		for( Product at : this.products )
+		{
+			row[insertRow][0] = at.getSKU() + "";
+			row[insertRow][1] = at.getName();
+			row[insertRow][2] = (at.getStockPar() - at.getStockIn())+  "";	// auto orders to the Par-in difference
+			insertRow++;
+		}
+		
+		return row;
 	}
 }

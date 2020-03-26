@@ -1,10 +1,297 @@
 package application;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
-public class Test {
-	@SuppressWarnings("static-access")			// to get IDE to not complain about weird static variable
+public class Test { }
+	//@SuppressWarnings("static-access")			// to get IDE to not complain about weird static variable
+	/*public static void main(String[] args) {
+	
+		/*
+		 * Sequence of events
+		 * - Program asks which user you are
+		 * 		* Employee
+		 * 		* Store Manager
+		 * 		* HQ
+		 * 		* Warehouse
+		 * 		* Shutdown
+		 * - On selecting employee, it asks you to type in username and storename. (we will automatically populate these instances)
+		 * - 
+		 *
+		
+	
+		boolean appRunning = true;
+		Store store = new Store(0);
+		StoreManager storeManager = new StoreManager(store);
+		Employee employee = new Employee();
+		HeadQuarters hq = new HeadQuarters();
+		Customer customer = new Customer();
+		storeCart cart = new storeCart();
+		
+		//This is really janky. Fix in next sprint
+		ArrayList<String> storeRestockReports = new ArrayList<String>();
+		
+		
+		
+		store.addNewProduct(new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball"), 90, 90);	// always return true ( will  not return false unless misused )
+		store.addNewProduct(new Product(1, 10.00, "Gloves"), 10, 10);
+		store.addNewProduct(new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm"), 200, 200);
+		
+		while (appRunning) {
+			Object[] options = {"Store Manager","WareHouse","Store Employee","HQ", "Shut Down"};
+			int n = JOptionPane.showOptionDialog(null, "Click a role to login:",
+					"FastFit Information System",
+					JOptionPane.YES_NO_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					options,
+					options[4]);
+				
+				switch (n) {
+				case 0: // Store Manager
+					boolean runningSM = true;
+					while (runningSM) {
+						Object[] SMOptions = {"Add Item Inventory", "Print Inventory Report", "Logout"};
+						//functionNo cuz we provide them functions here
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Store Manager. Select an option",
+								"FastFit Information System - Store Manager",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								SMOptions,
+								SMOptions[2]);
+						switch (functionNo) {
+						case 0: // Add Item Inventory
+							//(sku, price, quantity, name, description), inventory
+							//sm.store.setParProduct(new Product(0, 20, 10, "ass", "see name"), 8);
+							JTextField sku = new JTextField(5);
+							JTextField price = new JTextField(5);
+							JTextField name = new JTextField(5);
+							JTextField description = new JTextField(5);
+							JTextField fullStock = new JTextField(5);
+							JTextField currentStock = new JTextField(5);
+							  
+							JPanel p = new JPanel();
+							p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+							p.add(new JLabel("SKU:"));
+							p.add(sku);
+							p.add(new JLabel("Price:"));
+							p.add(price);
+							p.add(new JLabel("Name: "));
+							p.add(name);
+							p.add(new JLabel("Description"));
+							p.add(description);
+							p.add(new JLabel("Expected Fully Stocked Quantity: "));
+							p.add(fullStock);
+							p.add(new JLabel("Current Quantity: "));
+							p.add(currentStock);
+							int result = JOptionPane.showConfirmDialog(null, p, 
+							         "Please Enter Item Information", JOptionPane.OK_CANCEL_OPTION);
+							if (result == JOptionPane.OK_OPTION) {
+							   System.out.println("sku: " + sku.getText());
+							   System.out.println("price: " + price.getText());
+							  
+							   try {
+								   store.addNewProduct(new Product(Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), 
+									    name.getText(), description.getText()), Integer.parseInt(fullStock.getText()), Integer.parseInt(currentStock.getText()));
+								   
+								   JOptionPane.showMessageDialog(null, "Product successfully added!");
+							   } catch (NumberFormatException e) {
+								   JOptionPane.showMessageDialog(null, "Error. One of your inputs are invalid!");
+							   }
+							}
+							  
+							break;
+						case 1: //Print Inventory Report
+							// used this as a test button 
+							JOptionPane.showMessageDialog(null, store.printInventory());
+							break;
+						case 2: //Logout
+							runningSM = false;
+							break;
+						}
+					}
+					break;
+				case 1: //WH Manager
+					boolean runningWM = true;
+					while (runningWM) {
+						Object[] WMOptions = {"View Open Store Orders", "Logout"};
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Warehouse manager. Select an option",
+								"A Silly Question",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								WMOptions,
+								WMOptions[1]);
+						switch (functionNo) {
+						case 0:
+							String r = "";
+							for (int i = 0; i < storeRestockReports.size(); i++) {
+								r += storeRestockReports.get(i);
+							}
+							JOptionPane.showMessageDialog(null, r);
+						case 1:
+							runningWM = false;
+							break;
+						}
+					}
+					break;
+				case 2: //Store Employee
+					boolean runningEmployee = true;
+					while (runningEmployee) {
+						Object[] employeeOptions = {"Add Items to cart", "View Cart", "Checkout", "Logout"};
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Employee. \nCurrent Cart: \n\n" + cart.printCart()
+																			 + "\nTotal: $" + cart.getTotalPrice(),
+								"FastFit Information System - Store Employee",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								employeeOptions,
+								employeeOptions[1]);
+						switch (functionNo) {
+						case 0: //Add Items
+							JTextField sku = new JTextField(5);
+							JTextField quantity = new JTextField(5);
+							JPanel p = new JPanel();
+							p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+							p.add(new JLabel("SKU:"));
+							p.add(sku);
+							p.add(new JLabel("Quantity:"));
+							p.add(quantity);
+							int result = JOptionPane.showConfirmDialog(null, p, 
+							         "Please Enter the SKU of the item and its quantity you want to add", JOptionPane.OK_CANCEL_OPTION);
+							if (result == JOptionPane.OK_OPTION) {
+							   // done as System.out for debugging purposes; method call is still functional as normal
+								try {
+									Product product = Product.getProductBySKU(Integer.parseInt(sku.getText()));
+									cart.addProduct(product, Integer.parseInt(quantity.getText()));
+									JOptionPane.showMessageDialog(null, "Product successfully added to cart!");
+								} catch ( NumberFormatException e ) {
+									JOptionPane.showMessageDialog(null, "Please enter a valid SKU");
+								}
+							}
+							break;
+						case 1: // View Cart
+							JOptionPane.showMessageDialog(null, cart.printCart());
+							break;
+						case 2: // Checkout
+							boolean checkingOut = true;
+							while (checkingOut) {
+								try {
+									/*
+									 * TODO Break up inputs into 
+									 * 	Card number
+									 * 	EXP date
+									 * 	CV number/ Pin		
+									 * for better readibility 
+									 *
+									JTextField cardNum = new JTextField(16);
+									JTextField expDate = new JTextField(5);
+									JTextField securityCode = new JPasswordField(3);
+									Object[] message = {
+											"Enter the 16-Digit Card Number:", cardNum,
+											"Enter the Expiration Date: (MM/YY)", expDate,
+											"Enter the 3-Digit Security Code:", securityCode
+									};
+									//String cardNum = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 16-digit Card Number:");
+									//String expDate = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the Expiration Date:  <'MM/YY'>");
+									//String securityCode = JOptionPane.showInputDialog(null, sm.store.printCart() + "\n, Enter the 3-digit Security Code:");
+									int option = JOptionPane.showConfirmDialog(null, message, "Payment", JOptionPane.OK_CANCEL_OPTION);
+									if (option == JOptionPane.OK_OPTION) {
+										String input = cardNum.getText() + "," + expDate.getText()  + "," + securityCode.getText();
+										JOptionPane.showMessageDialog(null, store.placeOrder(input, cart));
+										cart.flushCart();
+										checkingOut = false;
+									} else {
+										checkingOut = false;
+									}
+									// does not preserve old copy | can update to unique named files with "Order Form "+ date.txt
+								} catch (Exception e) {
+									// should not occur
+									JOptionPane.showMessageDialog(null, "Error in sending order");
+									e.printStackTrace();
+								}
+							}
+							break;
+						case 3:
+							runningEmployee = false;
+							break;
+						}
+					}
+					break;
+				case 3:
+					boolean runningHQ = true;
+					while (runningHQ) {
+						Object[] HQOptions = {"Current Inventory Levels", "Adjust Fully Stocked Levels", "Send Store Report to Warehouse", "Logout"};
+						int functionNo = JOptionPane.showOptionDialog(null, "Greetings, HQ. Select an option",
+								"A Silly Question",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								HQOptions,
+								HQOptions[2]);
+						switch (functionNo) {
+						case 0:
+							JOptionPane.showMessageDialog(null, Store.printAllStoreInventories());
+							break;
+						case 1:
+							JTextField sku = new JTextField(5);
+							JTextField storeID = new JTextField(5);
+							JTextField fullyStocked = new JTextField(5);
+							  
+							JPanel p = new JPanel();
+							p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+							//p.add(new JLabel(Store.printAllStoreInventories()));
+							p.add(new JLabel("SKU:"));
+							p.add(sku);
+							p.add(new JLabel("Store ID:"));
+							p.add(storeID);
+							p.add(new JLabel("New Expected Fully Stocked Quantity"));
+							p.add(fullyStocked);
+							int result = JOptionPane.showConfirmDialog(null, p, 
+							         "Update Item stock", JOptionPane.OK_CANCEL_OPTION);
+							if (result == JOptionPane.OK_OPTION) {
+								if (Store.updateStoreFullStock(Integer.parseInt(storeID.getText()), Integer.parseInt(sku.getText()), Integer.parseInt(fullyStocked.getText()))) {
+									JOptionPane.showMessageDialog(null, "Success!");
+								} else {
+									JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+								}
+							}
+							break;
+						case 2:
+							p = new JPanel();
+							//p.add(new JLabel(Store.printAllStoreInventories()));
+							storeID = new JTextField(5);
+							p.add(new JLabel("Input store ID that requires restocking:"));
+							p.add(storeID);
+							result = JOptionPane.showConfirmDialog(null, p, 
+							         "Send Store Report to Warehouse", JOptionPane.OK_CANCEL_OPTION);
+							if (result == JOptionPane.OK_OPTION) {
+								//This is very janky and not OOP. We will need to fix this in the next sprint.
+								Store s = Store.getStoreByID(Integer.parseInt(storeID.getText()));
+								s.createRestockOrder();
+								storeRestockReports.add(s.createRestockOrder());
+								JOptionPane.showMessageDialog(null, "Success!");
+							}
+							break;
+						case 3:
+							runningHQ = false;
+							break;
+						}
+					}
+					break;
+				case 4:
+					appRunning = false;
+					break;
+			}
+			
+		}
+	}
+	
+	//OLD PSVM
+	/*
 	public static void main(String[] args)
 	{
 		Store s1 = new Store("1", "SM1");
@@ -36,7 +323,7 @@ public class Test {
 			 *  	HeadQuarters
 			 *  	
 			 *  
-			 */
+			 *//*
 			Object[] options = {"Store Manager","WareHouse","Store Employee","HQ", "Shut Down"};
 			int n = JOptionPane.showOptionDialog(null, "Select your company role:",
 						"FastFit Information System",
@@ -117,7 +404,7 @@ public class Test {
 			case 1: //WH Manager
 				boolean runningWM = true;
 				while (runningWM) {
-					Object[] WMOptions = {"Add item inventory par at this store", "Set item inventory par at this store", "Logout"};
+					Object[] WMOptions = {"", "", "Logout"};
 					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, Warehouse manager. Select an option",
 							"A Silly Question",
 							JOptionPane.YES_NO_CANCEL_OPTION,
@@ -177,7 +464,7 @@ public class Test {
 								 * 	EXP date
 								 * 	CV number/ Pin		
 								 * for better readibility 
-								 */
+								 *//*
 								JTextField cardNum = new JTextField(16);
 								JTextField expDate = new JTextField(5);
 								JTextField securityCode = new JPasswordField(3);
@@ -215,7 +502,7 @@ public class Test {
 			case 3:
 				boolean runningHQ = true;
 				while (runningHQ) {
-					Object[] HQOptions = {"Add a store location", "Set store location item inventory", "Logout"};
+					Object[] HQOptions = {"Add item inventory par at this store", "Set item inventory par at this store", "Add a store location", "Set store location item inventory", "Logout"};
 					int functionNo = JOptionPane.showOptionDialog(null, "Greetings, HQ. Select an option",
 							"A Silly Question",
 							JOptionPane.YES_NO_CANCEL_OPTION,
@@ -283,6 +570,7 @@ public class Test {
 			// should not occur
 			e.printStackTrace();
 		}
-		*/
-	}
+		*
+	//} END OLD PSVM
 }
+*/
