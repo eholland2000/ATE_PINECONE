@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -32,8 +33,10 @@ public class PanelBuilder {
 	/*
 	 * JFrame defined to fixed resolution > Layouts are absolute ( lazy )
 	 */
+	static boolean refund = false;
 	static public JPanel POS()
 	{
+		
 		JPanel panel = new JPanel();
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
@@ -105,7 +108,7 @@ public class PanelBuilder {
 		txtSku.setBounds(674, 61, 86, 20);
 		panel.add(txtSku);
 		
-		JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, 100, 1) );
+		JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, 500, 1) );
 		spinner.setBounds(770, 61, 55, 20);
 		panel.add(spinner);
 		
@@ -120,28 +123,55 @@ public class PanelBuilder {
 				pane.remove(table);
 				
 				try { 
-					int sku = new Integer((int)txtSku.getValue());
-					int amt = new Integer((int)spinner.getValue());
-					
-					Product p = Product.getProductBySKU( sku );
-
-					Cart.setProduct(p, amt);
-					
-					model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
-					
-					String[][] inCart = Cart.cartToPrint();
-					System.out.println(inCart.length); 
-					for(int i = 0; i < inCart.length; i++)
-					{
-						model.addRow(inCart[i]);
+					if( !refund )
+					{	// transaction is a sale
+						int sku = new Integer((int)txtSku.getValue());
+						int amt = new Integer((int)spinner.getValue());
+						
+						Product pSuper = Product.getProductBySKU( sku );		// gets default assigned values
+						Product p	   = new Product(sku, pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
+						Cart.setProduct(p, amt);								// adds to cart
+						
+						model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
+						
+						String[][] inCart = Cart.cartToPrint();
+						System.out.println(inCart.length); 
+						for(int i = 0; i < inCart.length; i++)
+						{
+							model.addRow(inCart[i]);
+						}
+						
+						// updates price total
+						modelTotal.removeRow(0);
+						modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
+	
+						txtSku.setValue(0);
+						spinner.setValue(1);
+					} else {
+						// transaction is a refund | values made negative
+						int sku = new Integer((int)txtSku.getValue());
+						int amt = new Integer((int)spinner.getValue());
+						
+						Product pSuper = Product.getProductBySKU( sku );		// gets default assigned values
+						Product p	   = new Product(sku, (-pSuper.getPrice()), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
+						Cart.setProduct(p, (-amt));								// adds to cart
+						
+						model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
+						
+						String[][] inCart = Cart.cartToPrint();
+						System.out.println(inCart.length); 
+						for(int i = 0; i < inCart.length; i++)
+						{
+							model.addRow(inCart[i]);
+						}
+						
+						// updates price total
+						modelTotal.removeRow(0);
+						modelTotal.addRow(new Object[] {"Total", "$" + -Cart.total} );
+	
+						txtSku.setValue(0);
+						spinner.setValue(1);
 					}
-					
-					// updates price total
-					modelTotal.removeRow(0);
-					modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
-
-					txtSku.setValue(0);
-					spinner.setValue(1);
 				} catch ( NumberFormatException | NullPointerException e ) {
 					txtSku.setValue("Invalid");
 				}
@@ -154,12 +184,69 @@ public class PanelBuilder {
 		btnAddCol.setBounds(835, 61, 89, 23);
 		panel.add(btnAddCol);
 		
+		JButton btnAddCustomer = new JButton("Add Customer");
+		btnAddCustomer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JTextField name   = new JTextField(25);
+				JTextField addres = new JTextField(50);
+				JTextField phone  = new JTextField(10);
+				Object[] options = new Object[] { "Name", name,
+												  "Address", addres,
+												  "Phone", phone};
+				int r = JOptionPane.showConfirmDialog(null, options, "Enter Customer Information", JOptionPane.OK_CANCEL_OPTION);
+				if( r == JOptionPane.OK_OPTION ) {
+					if( name.getText().length() > 0 && addres.getText().length() > 0 )
+						JOptionPane.showMessageDialog(null, "New Customer added successfully");
+					else 
+						JOptionPane.showMessageDialog(null, "Please fill all fields");
+				} 
+			}
+		});
+		btnAddCustomer.setBounds(522, 494, 120, 23);
+		panel.add(btnAddCustomer);
+			
+		JButton btnToggleRefund = new JButton("Refund Mode");
+		btnToggleRefund.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if( !refund )
+				{ 	// refund will process on submission
+					pane.setBackground(new Color(255, 102, 102));
+					refund = true;
+				} else {			
+					pane.setBackground(new Color(102, 102, 102));
+					refund = false;
+					
+				}
+				// resets POS view
+				Cart.flushCart();
+				model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
+				modelTotal.removeRow(0);	// removes old row
+				modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
+			}
+		});
+		btnToggleRefund.setBounds(522, 524, 120, 23);
+		panel.add(btnToggleRefund);
 		
 		JButton btnCheckOot = new JButton("Check Oot");
 		btnCheckOot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// Enter valid payment | or cancel to return to add item view
+				/*
+				 * Any entry customer reward program check
+				 */
+				JTextField lookup = new JTextField(10);
+				Object[] options = new Object[] { "Search Customer by Phone", lookup };
+				
+				int r = JOptionPane.showConfirmDialog(null, options, "Rewards", JOptionPane.OK_CANCEL_OPTION);
+				if( lookup.getText().length() > 0 )
+				{
+					// customer look up always returns false
+					JOptionPane.showMessageDialog(null, "Unable to find a Customer with that number");
+				}
+
 				while ( true ) {
+					/*
+					 * Enter valid payment | or cancel to return to add item view
+					 */
 					JTextField cardNum = new JTextField(16);
 					JTextField expDate = new JTextField(5);
 					JTextField securityCode = new JPasswordField(3);
@@ -210,7 +297,10 @@ public class PanelBuilder {
 									reciept += line[1] +" -@"+ line[2] +" : $"+ line[3] +" each for subtotal $"+ line[4] + "\n";
 								}
 								reciept += "-------- ---------------";
-								reciept += "\nTotal: $" + Cart.total;
+								if( !refund )
+									reciept += "\nTotal: $" + Cart.total;
+								else
+									reciept += "\nTotal: $" + -Cart.total;
 								JOptionPane.showMessageDialog(null, reciept + "\n\n" + GUI.currentStore().checkoutCart(Cart.products));
 								
 								Cart.flushCart();
@@ -261,7 +351,7 @@ public class PanelBuilder {
 		
 		return panel;
 	}
-	static public JPanel managerView()
+	static public JPanel managerView(Store s)
 	{
 		/*
 		 * View
@@ -271,10 +361,166 @@ public class PanelBuilder {
 		 * Notes
 		 * 	Re-stock is automatically sent | 
 		 */
-		return new JPanel();
+		JPanel panel = new JPanel();
+		panel.setBorder(new LineBorder(null, 5));
+		panel.setBackground(SystemColor.info);
+		panel.setLayout(null);
+		
+		JPanel pane = new JPanel();
+		pane.setBackground(new Color(102, 102, 102));
+		pane.setBounds(30, 61, 857, 530);
+		panel.add(pane);
+		pane.setLayout(null);
+		
+		
+		// maps table values
+		DefaultTableModel model = new DefaultTableModel(){
+		    @Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		    	// TODO Manager can edit product from table cell | by calling pop-up
+		    	// does not save on close
+		        // return column == 4 && row > 0;
+		    	return false;
+		    }
+		};  
+		model.addColumn("SKU");
+		model.addColumn("NAME");
+		model.addColumn("PRICE");
+		model.addColumn("PAR LEVEL");
+		model.addColumn("AMOUNT IN STORE");
+		
+		DefaultTableColumnModel columnModel = new DefaultTableColumnModel(); 	
+			int[] columnsWidth = { 10, 200, 100, 80, 80 };									// DEFINES WIDTH
+	        for( int i = 0; i < columnsWidth.length; i++ ) {							
+	    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
+	        }
+	        model.addRow( new Object [] {"SKU", "NAME", "PRICE", "PAR LEVEL", "AMOUNT IN STORE"});// HEADER ROW
+		
+	    // Puppets from store object
+	    for( Product p : s.getProducts() )
+	    {
+	    	model.addRow( new Object [] {p.getSKU(), p.getName(), p.getPrice(), p.getStockPar(), p.getStockIn()} );
+	    }
+	    
+	    JTable table = new JTable(model);
+		table.setBounds(10, 11, 837, 508);
+		table.setShowVerticalLines(false);
+		pane.add(table);
+		
+		table.setColumnModel(columnModel);
+		
+		JButton btnEditCount = new JButton("Edit Count");
+		btnEditCount.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JTextField sku = new JTextField(5);
+				JTextField currentStock = new JTextField(5);
+				  
+				JPanel pane = new JPanel();
+				pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+				pane.add(new JLabel("SKU:"));
+				pane.add(sku);
+				pane.add(new JLabel("Current Quantity: "));
+				pane.add(currentStock);
+				int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter Item Count in Store", JOptionPane.OK_CANCEL_OPTION);
+				
+				if (result == JOptionPane.OK_OPTION) {
+				   try {
+					   Store store = GUI.currentStore();	
+					   
+					   if( store.getProductBySKU( Integer.parseInt(sku.getText()) ) != null )
+					   {	
+						   // item exists in the store
+						   Product edited = store.getProductBySKU( Integer.parseInt(sku.getText()) );
+						   store.updateCurrentStock(edited, Integer.parseInt(currentStock.getText()));
+						   
+						   JOptionPane.showMessageDialog(null, "Product updated!");
+					   } else {
+						   // Product does not exist,  wrong pop-up called
+						   JOptionPane.showMessageDialog(null, "Error, Could not find product with that SKU");
+					   }
+					   
+					   model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
+						
+					   for( Product p : s.getProducts() ) {
+					    	model.addRow( new Object [] {p.getSKU(), p.getName(), p.getPrice(), p.getStockPar(), p.getStockIn()} );
+					   }
+				   } catch (NumberFormatException e) {
+					   JOptionPane.showMessageDialog(null, "Error, Not a Number!");
+				   }
+				}
+			}
+				
+		});
+		btnEditCount.setBounds(40, 602, 150, 23);
+		panel.add(btnEditCount);
+		
+		return panel;
 	}
-	/*
-	public JPanel hqView(int x)
+	public static JPanel warehouse() {
+		JPanel panel = new JPanel();
+		panel.setBorder(new LineBorder(null, 5));
+		panel.setBackground(SystemColor.info);
+		panel.setLayout(null);
+		
+		JPanel pane = new JPanel();
+		pane.setBackground(new Color(102, 102, 102));
+		pane.setBounds(30, 61, 857, 530);
+		panel.add(pane);
+		pane.setLayout(null);
+		
+		
+		// maps table values
+		DefaultTableModel model = new DefaultTableModel(){
+		    @Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return column == 4 && row > 0;
+		    }
+		};  
+		model.addColumn("ORDER ID");
+		model.addColumn("SKU");
+		model.addColumn("NAME");
+		model.addColumn("AMOUNT ON ORDER");
+		model.addColumn("SEND BY");
+		
+		DefaultTableColumnModel columnModel = new DefaultTableColumnModel(); 	
+			int[] columnsWidth = { 10, 50, 200, 100, 100 };											// DEFINES WIDTH
+	        for( int i = 0; i < columnsWidth.length; i++ ) {							
+	    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
+	        }
+	        model.addRow( new Object [] {"ORDER ID", "SKU", "NAME", "AMOUNT ON ORDER", "SEND BY"});	// HEADER ROW
+		
+	    JTable table = new JTable(model);
+		table.setBounds(10, 11, 837, 508);
+		table.setShowVerticalLines(false);
+		pane.add(table);
+		
+		table.setColumnModel(columnModel);
+		
+		JButton button = new JButton("Complete Order");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JPanel pane = new JPanel();
+				JTextField orderID = new JTextField(5);
+				pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+				pane.add(new JLabel("Order ID: "));
+				pane.add(orderID);
+				
+				int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter Item Count in Store", JOptionPane.OK_CANCEL_OPTION);
+				if( result == JOptionPane.OK_OPTION )
+				{
+					// TODO edit HQ pending orders
+					model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
+				} 
+			}
+		});
+		button.setBounds(40, 602, 150, 23);
+		panel.add(button);
+		
+		return panel;
+	}
+	public static JPanel hq(int x)
 	{
 		/* x 	: used for switch case on what to return
 		 *
@@ -292,10 +538,12 @@ public class PanelBuilder {
 		 * 	3) > confirm order 
 		 * 		- button ( removes order request from list | calls respective warehouse object and reduces product by amount )
 		 * 		- functionally a warehouse shopping cart
-		 *
+		 */ 
+		return null;
+		
 	}
 	
-	*/
+	
 	
 }
 

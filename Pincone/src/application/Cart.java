@@ -39,9 +39,6 @@ public class Cart {
 		
 		return row;
 	}
-	public ArrayList<Product> getProducts() {
-		return this.products;
-	}
 	public static void flushCart() {
 		total = 0.00;
 		products = new ArrayList<Product>();

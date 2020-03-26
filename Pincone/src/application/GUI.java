@@ -47,13 +47,19 @@ public class GUI extends JFrame {
 	public GUI() {
 		// https://stackoverflow.com/questions/41851429/how-to-switch-cards-from-a-button-on-a-card
 		
-		new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");	
-		new Product(1, 10.00, "Gloves");
-		new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
+		// Cataloged items with default values : determined by HQ
+		new Catalog ( new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball") );	
+		new Catalog ( new Product(1, 10.00, "Gloves") );
+		new Catalog ( new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm") );
 		
-		store.addNewProduct(Product.getProductBySKU(0), 10, 10);
-		store.addNewProduct(Product.getProductBySKU(1), 50, 40);
-		store.addNewProduct(Product.getProductBySKU(2), 20, 2);
+		// Products to be added to a store
+		Product hat    = new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
+		Product gloves = new Product(1, 10.00, "Gloves");
+		Product coat   = new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
+		
+		store.addNewProduct(hat, 10, 10);
+		store.addNewProduct(gloves, 50, 40);
+		store.addNewProduct(coat, 20, 2);
 
 		// ----- Base holder -----
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -126,7 +132,7 @@ public class GUI extends JFrame {
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				visiblePane = PanelBuilder.managerView();
+				visiblePane = PanelBuilder.managerView(store);
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 
@@ -144,6 +150,40 @@ public class GUI extends JFrame {
 				contentPane.remove(visiblePane);
 				
 				visiblePane = PanelBuilder.POS();
+				visiblePane.setBounds(5, 5, 934, 635);
+				visiblePane.revalidate();
+
+				contentPane.add(visiblePane);
+				contentPane.revalidate();
+				contentPane.repaint();
+			}
+		});
+		
+		JButton warehouse = new JButton("Warehouse log in [test button]");
+		toReturn.add(warehouse);
+		warehouse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				previousPane = visiblePane;			// previous is the view left from
+				contentPane.remove(visiblePane);
+				
+				visiblePane = PanelBuilder.warehouse();
+				visiblePane.setBounds(5, 5, 934, 635);
+				visiblePane.revalidate();
+
+				contentPane.add(visiblePane);
+				contentPane.revalidate();
+				contentPane.repaint();
+			}
+		});
+		
+		JButton hq = new JButton("Head Quarters log in [test button]");
+		toReturn.add(hq);
+		hq.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				previousPane = visiblePane;			// previous is the view left from
+				contentPane.remove(visiblePane);
+				
+				visiblePane = PanelBuilder.hq(0);
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 

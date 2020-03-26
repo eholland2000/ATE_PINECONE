@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class HeadQuarters {
 	ArrayList <Store> Stores = new ArrayList <Store>();
+	
 	/*
 	 * Populated data object
 	 *  Holds all information relating to every store/ warehouse

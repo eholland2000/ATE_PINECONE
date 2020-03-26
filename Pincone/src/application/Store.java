@@ -33,9 +33,9 @@ public class Store {
 		stores.add(this);							// + to list for indexing
 	}
 	public Product getProductBySKU(int SKU) {
-		for (int i = 0; i < products.size(); i++) {
-			if (products.get(i).getSKU() == SKU)
-				return products.get(i);
+		for (int i = 0; i < this.products.size(); i++) {
+			if (this.products.get(i).getSKU() == SKU)
+				return this.products.get(i);
 		}
 		return null;
 	}
@@ -71,9 +71,15 @@ public class Store {
 	}
 	
 	public void addNewProduct(Product p, int fullStockQuantity, int currentStockQuantity) {
-		p.setStockIn(currentStockQuantity);
-		p.setStockPar(fullStockQuantity);
-		products.add(p);
+			
+		if( getProductBySKU(p.getSKU()) == null )
+		{ 	// makes a new entry
+			p.setStockIn(currentStockQuantity);
+			p.setStockPar(fullStockQuantity);
+			products.add(p);
+		} else {
+			updateCurrentStock( p, currentStockQuantity );
+		}
 	}
 	public void updateCurrentStock(Product p, int currentStockQuantity) {
 		getProductBySKU(p.getSKU()).setStockIn(currentStockQuantity);
@@ -107,11 +113,11 @@ public class Store {
 		/*
 		 * Reduces inventory by the static Cart.products
 		 */
-		for( int x = 0; x < cart.size(); x++)
-		{
-			for( Product thatIn : this.products )
-			{
-				if( cart.get(x).getSKU() == thatIn.getSKU()) 
+		for( Product inStore : this.products )
+		{	// gets each Product
+			for( int x = 0; x < cart.size(); x++)
+			{	// check each product against each item in cart
+				if( cart.get(x).getSKU() == inStore.getSKU()) 
 				{
 					/*
 					 *  gets Product object in the store
@@ -119,8 +125,8 @@ public class Store {
 					 *  
 					 *  WARNING : if the amount sold > inStock, the sale will process regardless ( as product physically exists, but is not in system )
 					 */
-					getProductBySKU(thatIn.getSKU()).setStockIn( getProductBySKU(thatIn.getSKU()).getStockIn() - cart.get(x).getStockIn() );
-					
+					System.out.println(inStore.getStockIn() + "\t\t\t" +  cart.get(x).getStockIn());
+					updateCurrentStock( inStore, inStore.getStockIn() - cart.get(x).getStockIn() );
 				}
 			}
 		}

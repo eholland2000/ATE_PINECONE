@@ -13,7 +13,7 @@ public class Product {
 	private	String name = "";	// common name
 	private String desc;	// description of the name
 	
-	static private ArrayList<Product> products = new ArrayList<Product>();
+	// 	static private ArrayList<Product> products = new ArrayList<Product>(); moved to Catalog to track default values
 	
 	public Product(int SKU, double price, String name, String desc) 
 	{
@@ -22,10 +22,6 @@ public class Product {
 		this.price = price;
 		this.name = name;
 		this.desc = desc;
-		
-		products.add(this);
-		System.out.print(this.SKU + " " + this.name + " length ");
-		System.out.println(products.size());
 	}
 	public Product(int SKU, double price, String name) 
 	{
@@ -34,10 +30,6 @@ public class Product {
 		this.price = price;
 		this.name = name;
 		this.desc = "";
-		
-		products.add(this);
-		System.out.print(this.SKU + " " + this.name + " length ");
-		System.out.println(products.size());
 	}
 	public int getSKU()
 	{
@@ -76,19 +68,9 @@ public class Product {
 	}
 	
 	public static Product getProductBySKU(int SKU) {
-		for (int i = 0; i < products.size(); i++) {
-			if (products.get(i).getSKU() == SKU)
-			{
-				Product p = products.get(i);
-				return p;
-			}
-		}
-		return null;
+		return Catalog.getProductBySKU( SKU );
 	}
-	public static ArrayList<Product> getProducts()
-	{
-		return products;
-	}
+
 	//Just in case
 	public boolean equals(Product p) {
 		if (this.SKU == p.getSKU() && this.name == p.getName() && this.price == p.getPrice() && this.desc == p.getDesc())
