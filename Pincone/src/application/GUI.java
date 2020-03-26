@@ -21,7 +21,8 @@ public class GUI extends JFrame {
 	private JPanel contentPane;
 	private JPanel visiblePane;
 	private JPanel previousPane;
-	static Store store = new Store(0);		// the current store being edited : testing with
+	private static Store store = new Store(0);				// the current store being edited : testing with new
+	private static WareHouse warehouse = new WareHouse(0);	// the current warehouse being edited : testing with new
 
 	
 	/**
@@ -60,6 +61,8 @@ public class GUI extends JFrame {
 		store.addNewProduct(hat, 10, 10);
 		store.addNewProduct(gloves, 50, 40);
 		store.addNewProduct(coat, 20, 2);
+		
+	    HeadQuarters.populatePending();			//dummy data 
 
 		// ----- Base holder -----
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -149,7 +152,7 @@ public class GUI extends JFrame {
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				visiblePane = PanelBuilder.POS();
+				visiblePane = PanelBuilder.POS( store );
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 
@@ -159,14 +162,14 @@ public class GUI extends JFrame {
 			}
 		});
 		
-		JButton warehouse = new JButton("Warehouse log in [test button]");
-		toReturn.add(warehouse);
-		warehouse.addActionListener(new ActionListener() {
+		JButton btnWarehouse = new JButton("Warehouse log in [test button]");
+		toReturn.add(btnWarehouse);
+		btnWarehouse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				visiblePane = PanelBuilder.warehouse();
+				visiblePane = PanelBuilder.warehouse( warehouse );
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 
@@ -180,6 +183,7 @@ public class GUI extends JFrame {
 		toReturn.add(hq);
 		hq.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				/*
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
@@ -190,6 +194,7 @@ public class GUI extends JFrame {
 				contentPane.add(visiblePane);
 				contentPane.revalidate();
 				contentPane.repaint();
+				*/
 			}
 		});
 		

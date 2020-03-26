@@ -9,11 +9,10 @@ import java.util.ArrayList;
  *
  * Sees store reports
  */
-public class StoreManager extends Employee {
+public class StoreManager {
 	private Store store;
 	
 	public StoreManager(Store store) {
-		super();
 		this.store = store;
 		store.setManager(this);
 		//this.store.setManager(this);

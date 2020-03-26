@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
-public class Test {
-	@SuppressWarnings("static-access")			// to get IDE to not complain about weird static variable
-	public static void main(String[] args) {
+public class Test { }
+	//@SuppressWarnings("static-access")			// to get IDE to not complain about weird static variable
+	/*public static void main(String[] args) {
 	
 		/*
 		 * Sequence of events
@@ -19,7 +19,7 @@ public class Test {
 		 * 		* Shutdown
 		 * - On selecting employee, it asks you to type in username and storename. (we will automatically populate these instances)
 		 * - 
-		 */
+		 *
 		
 	
 		boolean appRunning = true;
@@ -28,7 +28,7 @@ public class Test {
 		Employee employee = new Employee();
 		HeadQuarters hq = new HeadQuarters();
 		Customer customer = new Customer();
-		Cart cart = new Cart();
+		storeCart cart = new storeCart();
 		
 		//This is really janky. Fix in next sprint
 		ArrayList<String> storeRestockReports = new ArrayList<String>();
@@ -186,7 +186,7 @@ public class Test {
 									 * 	EXP date
 									 * 	CV number/ Pin		
 									 * for better readibility 
-									 */
+									 *
 									JTextField cardNum = new JTextField(16);
 									JTextField expDate = new JTextField(5);
 									JTextField securityCode = new JPasswordField(3);
@@ -570,6 +570,7 @@ public class Test {
 			// should not occur
 			e.printStackTrace();
 		}
-		*/
+		*
 	//} END OLD PSVM
 }
+*/

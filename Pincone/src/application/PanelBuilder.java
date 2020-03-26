@@ -1,20 +1,16 @@
 package application;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -23,7 +19,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
@@ -34,17 +29,28 @@ public class PanelBuilder {
 	 * JFrame defined to fixed resolution > Layouts are absolute ( lazy )
 	 */
 	static boolean refund = false;
-	static public JPanel POS()
+	static public JPanel POS( Store store )
 	{
-		
+		// Instance of, make POS( Employee object and use it's )
 		JPanel panel = new JPanel();
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel("Employee: ");
-		lblNewLabel.setBounds(30, 15, 124, 35);
-		panel.add(lblNewLabel);
+		
+		// TODO move to actual 
+		Employee test  = new Employee( store );
+		String label   ="Employee ID " + test.ID + ": " + test.lastName + ", " + test.firstName;
+		Cart storeCart = test.cart;
+		
+		JLabel lblOrderId = new JLabel(label);
+		lblOrderId.setBounds(30, 15, 224, 35);
+		panel.add(lblOrderId);
+		
+		label = "Transaction code : " + storeCart.getOrderID();
+		JLabel lblOrderID = new JLabel(label);
+		lblOrderID.setBounds(363, 15, 209, 35);
+		panel.add(lblOrderID);
 		
 		JPanel pane = new JPanel();
 		pane.setBackground(new Color(102, 102, 102));
@@ -119,7 +125,6 @@ public class PanelBuilder {
 		JButton btnAddCol = new JButton("add item");
 		btnAddCol.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
 				pane.remove(table);
 				
 				try { 
@@ -130,12 +135,11 @@ public class PanelBuilder {
 						
 						Product pSuper = Product.getProductBySKU( sku );		// gets default assigned values
 						Product p	   = new Product(sku, pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
-						Cart.setProduct(p, amt);								// adds to cart
+						storeCart.setProduct(p, amt);								// adds to cart
 						
 						model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
 						
-						String[][] inCart = Cart.cartToPrint();
-						System.out.println(inCart.length); 
+						String[][] inCart = storeCart.cartToPrint();
 						for(int i = 0; i < inCart.length; i++)
 						{
 							model.addRow(inCart[i]);
@@ -143,9 +147,8 @@ public class PanelBuilder {
 						
 						// updates price total
 						modelTotal.removeRow(0);
-						modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
+						modelTotal.addRow(new Object[] {"Total", "$" + storeCart.total} );
 	
-						txtSku.setValue(0);
 						spinner.setValue(1);
 					} else {
 						// transaction is a refund | values made negative
@@ -154,12 +157,11 @@ public class PanelBuilder {
 						
 						Product pSuper = Product.getProductBySKU( sku );		// gets default assigned values
 						Product p	   = new Product(sku, (-pSuper.getPrice()), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
-						Cart.setProduct(p, (-amt));								// adds to cart
+						storeCart.setProduct(p, (-amt));								// adds to cart
 						
 						model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
 						
-						String[][] inCart = Cart.cartToPrint();
-						System.out.println(inCart.length); 
+						String[][] inCart = storeCart.cartToPrint();
 						for(int i = 0; i < inCart.length; i++)
 						{
 							model.addRow(inCart[i]);
@@ -167,16 +169,15 @@ public class PanelBuilder {
 						
 						// updates price total
 						modelTotal.removeRow(0);
-						modelTotal.addRow(new Object[] {"Total", "$" + -Cart.total} );
+						modelTotal.addRow(new Object[] {"Total", "$" + -storeCart.total} );
 	
-						txtSku.setValue(0);
 						spinner.setValue(1);
 					}
 				} catch ( NumberFormatException | NullPointerException e ) {
 					txtSku.setValue("Invalid");
 				}
+				
 				pane.add(table);
-		        
 				panel.revalidate();
 				panel.repaint();
 			}
@@ -218,10 +219,11 @@ public class PanelBuilder {
 					
 				}
 				// resets POS view
-				Cart.flushCart();
+				storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved
+				
 				model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
 				modelTotal.removeRow(0);	// removes old row
-				modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
+				modelTotal.addRow(new Object[] {"Total", "$0.00"} );
 			}
 		});
 		btnToggleRefund.setBounds(522, 524, 120, 23);
@@ -290,7 +292,7 @@ public class PanelBuilder {
 								// card length & pin length test | date | valid entry
 									// "Reciept"
 								String reciept = "";
-								String[][] cart = Cart.cartToPrint();
+								String[][] cart = storeCart.cartToPrint();
 								for( String[] line : cart )
 								{
 									// Compiles cart to reciept
@@ -298,16 +300,17 @@ public class PanelBuilder {
 								}
 								reciept += "-------- ---------------";
 								if( !refund )
-									reciept += "\nTotal: $" + Cart.total;
+									reciept += "\nTotal: $" + storeCart.total;
 								else
-									reciept += "\nTotal: $" + -Cart.total;
-								JOptionPane.showMessageDialog(null, reciept + "\n\n" + GUI.currentStore().checkoutCart(Cart.products));
+									reciept += "\nTotal: $" + -storeCart.total;
+								JOptionPane.showMessageDialog(null, reciept + "\n\n" + GUI.currentStore().checkoutCart(storeCart.products));
 								
-								Cart.flushCart();
+								storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved
+								
 								model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
 								
 								modelTotal.removeRow(0);	// removes old row
-								modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
+								modelTotal.addRow(new Object[] {"Total", "$0.00"} );
 								
 								txtSku.setValue(0);			// resets spinners
 								spinner.setValue(1);
@@ -333,13 +336,13 @@ public class PanelBuilder {
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Cart.flushCart();
+				storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved
+				
 				model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
 				
 				modelTotal.removeRow(0);	// removes old row
-				modelTotal.addRow(new Object[] {"Total", "$" + Cart.total} );
+				modelTotal.addRow(new Object[] {"Total", "$0.00"} );
 				
-				txtSku.setValue(0);			// resets spinners
 				spinner.setValue(1);
 				
 				panel.revalidate();
@@ -365,6 +368,11 @@ public class PanelBuilder {
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
+		
+		String label   = "Store Location: S" +s.getStoreID();
+		JLabel lblOrderId = new JLabel(label);
+		lblOrderId.setBounds(30, 15, 224, 35);
+		panel.add(lblOrderId);
 		
 		JPanel pane = new JPanel();
 		pane.setBackground(new Color(102, 102, 102));
@@ -457,11 +465,17 @@ public class PanelBuilder {
 		
 		return panel;
 	}
-	public static JPanel warehouse() {
+	public static JPanel warehouse( WareHouse w ) 
+	{
 		JPanel panel = new JPanel();
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
+		
+		String label   = "Warehose location: W"+ w.getID();
+		JLabel lblOrderId = new JLabel(label);
+		lblOrderId.setBounds(30, 15, 224, 35);
+		panel.add(lblOrderId);
 		
 		JPanel pane = new JPanel();
 		pane.setBackground(new Color(102, 102, 102));
@@ -490,7 +504,20 @@ public class PanelBuilder {
 	    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
 	        }
 	        model.addRow( new Object [] {"ORDER ID", "SKU", "NAME", "AMOUNT ON ORDER", "SEND BY"});	// HEADER ROW
+        
+	    w.revalidatePending();					// updates data of wh
+		ArrayList<Cart> pending = w.getPending();
 		
+		for(Cart c : pending)
+		{
+			String[][] inCart = c.cartToPrint();		// each Cart( order request )
+			for(int i = 0; i < inCart.length; i++)
+			{
+				String[] line = new String[] { c.getOrderID(), inCart[i][0], inCart[i][1], inCart[i][3], "EOD"};
+				model.addRow(line);
+			}
+		}
+	        
 	    JTable table = new JTable(model);
 		table.setBounds(10, 11, 837, 508);
 		table.setShowVerticalLines(false);
@@ -507,11 +534,26 @@ public class PanelBuilder {
 				pane.add(new JLabel("Order ID: "));
 				pane.add(orderID);
 				
-				int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter Item Count in Store", JOptionPane.OK_CANCEL_OPTION);
+				int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter OrderId", JOptionPane.OK_CANCEL_OPTION);
 				if( result == JOptionPane.OK_OPTION )
 				{
-					// TODO edit HQ pending orders
-					model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
+					String OrderId = orderID.getText().toUpperCase();
+					if( w.completeOrder(OrderId) )
+					{
+						model.setRowCount(1);
+					
+						for(Cart c : pending)
+						{
+							String[][] inCart = c.cartToPrint();		// each Cart( order request )
+							for(int i = 0; i < inCart.length; i++)
+							{
+								String[] line = new String[] { c.getOrderID(), inCart[i][0], inCart[i][1], inCart[i][3], "EOD"};
+								model.addRow(line);
+							}
+						}
+					} else {
+						JOptionPane.showConfirmDialog(null, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);
+					}
 				} 
 			}
 		});

@@ -16,6 +16,7 @@ public class Store {
 	private static ArrayList<Store> stores = new ArrayList<Store>();	// ref to all store objects
 	private int storeID;												// used to ID + get from tables
 	private StoreManager storeManager;									// Ref to sm object
+	private ArrayList<Employee> employees = new ArrayList<Employee>();	// workers in store | can only access their store POS
 	private ArrayList<Product> products = new ArrayList<Product>();		// Holds values for Product objects ( see MSRB / Sales Prices : ignore base price if(alt price set)) 
 																		// not static as each Store object can have a different Product list
 	
@@ -43,9 +44,6 @@ public class Store {
 		return products;
 	}
 	
-	public int getStoreID() {
-		return this.storeID;
-	}
 	public static void addStore(Store s) {
 		stores.add(s);
 	}
@@ -63,6 +61,18 @@ public class Store {
 		return null;
 	}
 	
+	public Employee getEmployee( int id )	throws NullPointerException
+	{
+		for( Employee e : this.employees )
+		{
+			if( e.ID == id )
+				return e;
+		}
+		return null;
+	}
+	public int getStoreID() {
+		return this.storeID;
+	}
 	public void setManager(StoreManager sm) {
 		this.storeManager = sm;
 	}

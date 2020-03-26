@@ -7,7 +7,10 @@ public class Catalog {
 	 * helper class to track HQ entered products
 	 */
 	static private ArrayList<Product> products = new ArrayList<Product>();
-	
+	public Catalog( )
+	{
+		// TODO : test / "is Proper?"
+	}
 	public Catalog( Product p )
 	{
 		products.add( p );
