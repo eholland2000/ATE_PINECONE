@@ -188,6 +188,7 @@ public class PanelBuilder {
 		JButton btnAddCustomer = new JButton("Add Customer");
 		btnAddCustomer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				while (true) {
 				JTextField name   = new JTextField(25);
 				JTextField addres = new JTextField(50);
 				JTextField phone  = new JTextField(10);
@@ -196,11 +197,23 @@ public class PanelBuilder {
 												  "Phone", phone};
 				int r = JOptionPane.showConfirmDialog(null, options, "Enter Customer Information", JOptionPane.OK_CANCEL_OPTION);
 				if( r == JOptionPane.OK_OPTION ) {
-					if( name.getText().length() > 0 && addres.getText().length() > 0 )
-						JOptionPane.showMessageDialog(null, "New Customer added successfully");
-					else 
-						JOptionPane.showMessageDialog(null, "Please fill all fields");
-				} 
+					try {
+						if (name.getText().length() > 0 && addres.getText().length() > 0 && Integer.parseInt(phone.getText()) / 1000000000 >= 1) {
+							JOptionPane.showMessageDialog(null, "New Customer added successfully");
+							break;
+						} else if (name.getText().length() > 0 && addres.getText().length() > 0) {
+							JOptionPane.showMessageDialog(null, "Please enter a valid, 10-digit phone number");
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "Please fill all fields");
+						}
+					} catch (NumberFormatException e) {
+						JOptionPane.showMessageDialog(null, "Please enter a valid, 10-digit phone number");
+					}
+				} else {
+					break;
+				}
+				}
 			}
 		});
 		btnAddCustomer.setBounds(522, 494, 120, 23);
@@ -229,22 +242,33 @@ public class PanelBuilder {
 		btnToggleRefund.setBounds(522, 524, 120, 23);
 		panel.add(btnToggleRefund);
 		
-		JButton btnCheckOot = new JButton("Check Oot");
+		JButton btnCheckOot = new JButton("Check Out");
 		btnCheckOot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				/*
 				 * Any entry customer reward program check
 				 */
-				JTextField lookup = new JTextField(10);
-				Object[] options = new Object[] { "Search Customer by Phone", lookup };
+				while (true) {
+					JTextField lookup = new JTextField(10);
+					Object[] options = new Object[] { "Search Customer by Phone", lookup };
 				
-				int r = JOptionPane.showConfirmDialog(null, options, "Rewards", JOptionPane.OK_CANCEL_OPTION);
-				if( lookup.getText().length() > 0 )
-				{
-					// customer look up always returns false
-					JOptionPane.showMessageDialog(null, "Unable to find a Customer with that number");
+					int r = JOptionPane.showConfirmDialog(null, options, "Rewards", JOptionPane.OK_CANCEL_OPTION);
+					try {
+						if (r != JOptionPane.OK_OPTION) {
+							break;
+						}
+						if( lookup.getText().length() > 0 && Integer.parseInt(lookup.getText()) / 1000000000 >= 1)
+						{
+							// customer look up always returns true
+							JOptionPane.showMessageDialog(null, "Success! Customer profile linked!");
+							break;
+						} else if (lookup.getText().length() > 0) {
+							JOptionPane.showMessageDialog(null, "Enter a valid, 10 digit phone number!");
+						}
+					} catch (NumberFormatException e) {
+						JOptionPane.showMessageDialog(null, "Enter a valid, 10 digit phone number!");
+					}
 				}
-
 				while ( true ) {
 					/*
 					 * Enter valid payment | or cancel to return to add item view
