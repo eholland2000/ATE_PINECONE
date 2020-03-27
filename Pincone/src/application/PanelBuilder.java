@@ -307,7 +307,7 @@ public class PanelBuilder {
 						
 						if ( option == JOptionPane.OK_OPTION ) 
 						{
-							if( year <= tYear || (mon <= tMon && year == tYear) )
+							if( year < tYear || (mon < tMon && year == tYear) )
 							{ 	// date invalid 
 								throw new NumberFormatException("Date Invalid");
 							} 
@@ -342,10 +342,13 @@ public class PanelBuilder {
 								panel.revalidate();
 								panel.repaint();
 								break;
+							} else {
+								throw new NumberFormatException("Invalid Card Number or Pin");
 							}
 						}
-					} catch( NumberFormatException e ) {
+					} catch( Exception e ) {
 						//do nothing, returned to payment pop
+						JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
 					}
 					if( option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION )
 					{	// canceled
