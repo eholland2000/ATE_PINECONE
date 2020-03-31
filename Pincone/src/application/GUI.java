@@ -187,9 +187,7 @@ public class GUI extends JFrame {
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				ArrayList<Store> stores = new ArrayList<>();
-				stores.add(store);
-				visiblePane = PanelBuilder.hq(stores);
+				visiblePane = PanelBuilder.hq( HeadQuarters.Stores );
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 

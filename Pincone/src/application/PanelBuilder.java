@@ -564,6 +564,23 @@ public class PanelBuilder {
 	}
 	public static JPanel hq(ArrayList<Store> stores)
 	{
+		/* x 	: used for switch case on what to return
+		 *
+		 *
+		 * View
+		 * 	1) List of all Stores & Warehouses
+		 * 	2) List of all default Products			// calls STORE_PRODUCT( where STORE_ID = null )	| defaults
+		 * 	3) List of Pending store orders
+		 * 	4) List of Sent store orders
+		 * Function
+		 * 	1) > add Store/ warehouse
+		 * 		- Pop up Dialog
+		 * 	2) > add Product
+		 * 		- Pop up Dialog
+		 * 	3) > confirm order 
+		 * 		- button ( removes order request from list | calls respective warehouse object and reduces product by amount )
+		 * 		- functionally a warehouse shopping cart
+		 */ 
 		JPanel panel = new JPanel();
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
@@ -635,21 +652,26 @@ public class PanelBuilder {
 				p.add(sku);
 				p.add(new JLabel("New Expected Fully Stocked Quantity"));
 				p.add(fullyStocked);
+				
+				
 				int result = JOptionPane.showConfirmDialog(null, p, 
 				         "Update Item stock", JOptionPane.OK_CANCEL_OPTION);
-				if (result == JOptionPane.OK_OPTION) {
+				if ( result == JOptionPane.OK_OPTION ) {
 					try {
-						stores.get(0).updateFullStock(stores.get(0).getProductBySKU(Integer.parseInt(sku.getText())), Integer.parseInt(fullyStocked.getText()));
-						JOptionPane.showMessageDialog(null, "Success!");
+						Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
+						
+						currentStore.updateFullStock(currentStore.getProductBySKU(Integer.parseInt(sku.getText())), 
+															     Integer.parseInt(fullyStocked.getText()));
 						
 						model.setRowCount(1);
 						
-					    for( Product product : stores.get(0).getProducts() )
+					    for( Product product : currentStore.getProducts() )
 					    {
 					    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
 					    }
 				        
-					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "Success!");
+					} catch (NumberFormatException e) {
 						JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
 					}
 				}
@@ -668,13 +690,21 @@ public class PanelBuilder {
 				int result = JOptionPane.showConfirmDialog(null, p, 
 				         "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
 				if (result == JOptionPane.OK_OPTION) {
-					stores.get(0).createRestockOrder();
+					Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
+					
+					currentStore.getProductBySKU(0).setStockIn(1233213);
 					
 					model.setRowCount(1);
 					
-				    for( Product product : stores.get(0).getProducts() )
+				    for( Product product : currentStore.getProducts() )
 				    {
-				    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), product.getStockPar() - product.getStockIn()} );
+				    	if( product.getStockPar() - product.getStockIn() > 0 ) 
+				    	{
+				    		// if not negative 
+				    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), product.getStockPar() - product.getStockIn()} );
+				    	} else {
+				    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
+				    	}
 				    }
 					JOptionPane.showMessageDialog(null, "Success!");
 				}
@@ -685,23 +715,7 @@ public class PanelBuilder {
 		panel.add(button2);
 		
 		return panel;
-		/* x 	: used for switch case on what to return
-		 *
-		 *
-		 * View
-		 * 	1) List of all Stores & Warehouses
-		 * 	2) List of all default Products			// calls STORE_PRODUCT( where STORE_ID = null )	| defaults
-		 * 	3) List of Pending store orders
-		 * 	4) List of Sent store orders
-		 * Function
-		 * 	1) > add Store/ warehouse
-		 * 		- Pop up Dialog
-		 * 	2) > add Product
-		 * 		- Pop up Dialog
-		 * 	3) > confirm order 
-		 * 		- button ( removes order request from list | calls respective warehouse object and reduces product by amount )
-		 * 		- functionally a warehouse shopping cart
-		 */ 
+		
 		//return null;
 		
 	}

@@ -3,7 +3,7 @@ package application;
 import java.util.ArrayList;
 
 public class HeadQuarters {
-	static ArrayList <Store> Stores = new ArrayList <Store>();				// 	all stores from launcher
+	static ArrayList <Store> Stores = Store.getStores();				// 	all stores from launcher
 	static ArrayList<Employee> employees = new ArrayList<Employee>();		// 	all employess from launcher
 	
 	
@@ -34,7 +34,7 @@ public class HeadQuarters {
 		cart1.setProduct(gloves, 2130);
 		cart1.setProduct(coat, 5);
 
-		Pending.add( cart );
+		Pending.add( cart  );
 		Pending.add( cart1 );
 	}
 	static ArrayList<Cart> getPending( int ID ) 

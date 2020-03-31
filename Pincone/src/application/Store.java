@@ -1,10 +1,6 @@
 package application;
 
-import java.io.Reader;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.HashMap;
 
 /*
  * A store needs:
@@ -165,7 +161,6 @@ public class Store {
 		
 		return row;
 	}
-	
 	public String[][] createRestockOrder() {
 		// [ SKU ][ NAME ][ ORDERING ]
 		String[][] row = new String[this.products.size()][3];		// [row][col]
