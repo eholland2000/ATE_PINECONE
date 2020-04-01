@@ -49,14 +49,15 @@ public class GUI extends JFrame {
 		// https://stackoverflow.com/questions/41851429/how-to-switch-cards-from-a-button-on-a-card
 		
 		// Cataloged items with default values : determined by HQ
-		new Catalog ( new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball") );	
-		new Catalog ( new Product(1, 10.00, "Gloves") );
-		new Catalog ( new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm") );
 		
 		// Products to be added to a store
 		Product hat    = new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
 		Product gloves = new Product(1, 10.00, "Gloves");
 		Product coat   = new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
+		
+		Product.setCatalog(hat);
+		Product.setCatalog(gloves);
+		Product.setCatalog(coat);
 		
 		store.addNewProduct(hat, 10, 10);
 		store.addNewProduct(gloves, 50, 40);

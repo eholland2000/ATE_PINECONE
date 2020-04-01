@@ -52,10 +52,6 @@ public class Cart {
 	{
 		return this.toCode;
 	}
-	static public int getOrderIDIndex()
-	{
-		return orderIDIndex;
-	}
 	public void setProduct(Product p, int quantity) {
 		// sets a products quantity regardless of prior entry
 		p.setStockIn(quantity);	// updates value of product to be added

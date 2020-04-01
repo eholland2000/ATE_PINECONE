@@ -6,8 +6,10 @@ public class Customer {
 	private static ArrayList<Customer> customers = new ArrayList<Customer>();
 	private String firstName;
 	private String lastName;
+	private String number;
 	private String DOB;
 	private Cart cart;
+	
 	public Customer(String firstName, String lastName, String DOB) {
 		customers.add(this);
 		this.firstName = firstName;

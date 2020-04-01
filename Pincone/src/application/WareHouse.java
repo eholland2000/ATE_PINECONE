@@ -43,13 +43,16 @@ public class WareHouse {
 	}
 	public void revalidatePending()
 	{
+		// testing
 		this.pending = HeadQuarters.getPending(this.whID);
 	}
 	public int getID()
 	{
 		return this.whID;
 	}
-	public void pendingAdd(ArrayList<Cart> pending) {
+	public void pendingAdd(ArrayList<Cart> pending) 
+	{
+		// testing
 		this.pending = pending;
 	}
 }

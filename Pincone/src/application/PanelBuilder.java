@@ -40,7 +40,7 @@ public class PanelBuilder {
 		
 		// TODO move to actual 
 		Employee test  = new Employee( store );
-		String label   ="Employee ID " + test.ID + ": " + test.lastName + ", " + test.firstName;
+		String label   ="Employee ID " + test.ID + ": " + test.getLastName() + ", " + test.getFirstName();
 		Cart storeCart = test.cart;
 		
 		JLabel lblOrderId = new JLabel(label);

@@ -5,10 +5,9 @@ import java.util.ArrayList;
 public class HeadQuarters {
 	static ArrayList <Store> Stores = Store.getStores();				// 	all stores from launcher
 	static ArrayList<Employee> employees = new ArrayList<Employee>();		// 	all employess from launcher
-	
+	static ArrayList<WareHouse> warehouse = new ArrayList<WareHouse>();
 	
 	private static ArrayList <Cart> Pending = new ArrayList <Cart>();		//	all orders WH > Store
-	static Catalog Catalog = new Catalog();							// 	default Products from launcher( PRODUCTS )
 	/*
 	 * pending.get( OrderID );
 	 * pending.get( getOrderBy(id) ).get( item Line );

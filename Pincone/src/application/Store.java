@@ -88,32 +88,10 @@ public class Store {
 		}
 	}
 	public void updateCurrentStock(Product p, int currentStockQuantity) {
-		getProductBySKU(p.getSKU()).setStockIn(currentStockQuantity);
+		getProductBySKU(p.getSKU())  .setStockIn(currentStockQuantity);
 	}
 	public void updateFullStock(Product p, int fullStockQuantity) {
-		getProductBySKU(p.getSKU()).setStockPar(fullStockQuantity);
-	}
-		
-	public String placeOrder(String paymentInfo, ArrayList<Product> cart) {
-		/*
-		 * At POS terminal
-		 */
-		checkoutCart(cart);
-		String[] card = paymentInfo.split(",");
-				
-		try {
-		if( card[0].length() == 16 )
-		{
-			if( card[1].length() == 5 )
-			{
-				if( card[2].length() == 3 )
-				{
-					return "Payment successfully processed.";
-				} } }
-		} catch ( IndexOutOfBoundsException e) {
-			return "Error, please try again."; 
-		}
-		return "Error, please try again.";
+		getProductBySKU(p.getSKU())  .setStockPar(fullStockQuantity);
 	}
 	public String checkoutCart(ArrayList<Product> cart) {
 		/*
