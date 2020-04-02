@@ -32,6 +32,12 @@ public class Product {
 		this.name = name;
 		this.desc = "";
 	}
+	public Product( Product p )
+	{
+		// create product from catalog item
+		// "Initializes from template"		& applies StockPar to new object
+		new Product(p.getSKU(), p.getPrice(), p.getName(), p.getDesc()).setStockPar( p.getStockPar() );;
+	}
 	public int getSKU()
 	{
 		return this.SKU;
@@ -76,7 +82,7 @@ public class Product {
 		 */
 		products.add(p);
 	}
-	public static Product getProductBySKU(int SKU) {
+	static public Product getProductBySKU(int SKU) {
 		for (int i = 0; i < products.size(); i++) {
 			if (products.get(i).getSKU() == SKU)
 			{
