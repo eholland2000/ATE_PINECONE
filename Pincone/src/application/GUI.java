@@ -185,9 +185,18 @@ public class GUI extends JFrame {
 		hq.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				
+				
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
+				
+				//instead,
+				//visiblePane = PanelBuilder.hqLogin();
+				//hqLogin will show you two buttons, either warehouse management or store management.
+				//On click store management, visiblePane = PanelBuilder.hq(HeadQuarters.Stores);
+				//On click warehousemanagement, visiblePane = PanelBuilder.hq(HeadQuarters.WareHouses);
+				//We'll overload the hq function in PanelBuilder.
 				visiblePane = PanelBuilder.hq( HeadQuarters.Stores );
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();

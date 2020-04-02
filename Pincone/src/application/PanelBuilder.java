@@ -562,6 +562,7 @@ public class PanelBuilder {
 		
 		return panel;
 	}
+	
 	public static JPanel hq(ArrayList<Store> stores)
 	{
 		/* x 	: used for switch case on what to return
@@ -621,6 +622,166 @@ public class PanelBuilder {
 	    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
 	        }
 	        model.addRow( new Object [] {"SKU", "NAME", "AMOUNT IN STORE", "PAR LEVEL", "RESTOCK ORDERED" });	// HEADER ROW
+		
+		    for( Product p : stores.get(0).getProducts() )
+		    {
+		    	model.addRow( new Object [] {p.getSKU(), p.getName(), p.getStockIn(), p.getStockPar(), 0} );
+		    }
+	        
+	    JTable table = new JTable(model);
+		table.setBounds(10, 11, 837, 508);
+		table.setShowVerticalLines(false);
+		pane.add(table);
+		
+		table.setColumnModel(columnModel);
+		
+		JButton button = new JButton("Adjust Par Levels");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JPanel pane = new JPanel();
+				JTextField orderID = new JTextField(5);
+				pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+				pane.add(new JLabel("Order ID: "));
+				pane.add(orderID);
+				
+				JTextField sku = new JTextField(5);
+				JTextField fullyStocked = new JTextField(5);
+				  
+				JPanel p = new JPanel();
+				p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+				p.add(new JLabel("SKU:"));
+				p.add(sku);
+				p.add(new JLabel("New Expected Fully Stocked Quantity"));
+				p.add(fullyStocked);
+				
+				
+				int result = JOptionPane.showConfirmDialog(null, p, 
+				         "Update Item stock", JOptionPane.OK_CANCEL_OPTION);
+				if ( result == JOptionPane.OK_OPTION ) {
+					try {
+						Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
+						
+						currentStore.updateFullStock(currentStore.getProductBySKU(Integer.parseInt(sku.getText())), 
+															     Integer.parseInt(fullyStocked.getText()));
+						
+						model.setRowCount(1);
+						
+					    for( Product product : currentStore.getProducts() )
+					    {
+					    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
+					    }
+				        
+						JOptionPane.showMessageDialog(null, "Success!");
+					} catch (NumberFormatException e) {
+						JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+					}
+				}
+				
+			}
+		});
+		button.setBounds(40, 602, 150, 23);
+		panel.add(button);
+
+		
+		JButton button2 = new JButton("Create Store Restock Order");
+		button2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JPanel p = new JPanel();
+				p.add(new JLabel("Are you sure you want to restock Store " + stores.get(0).getStoreID() + "?"));
+				int result = JOptionPane.showConfirmDialog(null, p, 
+				         "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
+				if (result == JOptionPane.OK_OPTION) {
+					Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
+					
+					currentStore.getProductBySKU(0).setStockIn(1233213);
+					
+					model.setRowCount(1);
+					
+				    for( Product product : currentStore.getProducts() )
+				    {
+				    	if( product.getStockPar() - product.getStockIn() > 0 ) 
+				    	{
+				    		// if not negative 
+				    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), product.getStockPar() - product.getStockIn()} );
+				    	} else {
+				    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
+				    	}
+				    }
+					JOptionPane.showMessageDialog(null, "Success!");
+				}
+				
+			}
+		});
+		button2.setBounds(200, 602, 200, 23);
+		panel.add(button2);
+		
+		return panel;
+		
+		//return null;
+		
+	}
+	
+	
+	//Overloading
+	public static JPanel hq(ArrayList<WareHouse> warehouses)
+	{
+		/* x 	: used for switch case on what to return
+		 *
+		 *
+		 * View
+		 * 	1) List of all Stores & Warehouses
+		 * 	2) List of all default Products			// calls STORE_PRODUCT( where STORE_ID = null )	| defaults
+		 * 	3) List of Pending store orders
+		 * 	4) List of Sent store orders
+		 * Function
+		 * 	1) > add Store/ warehouse
+		 * 		- Pop up Dialog
+		 * 	2) > add Product
+		 * 		- Pop up Dialog
+		 * 	3) > confirm order 
+		 * 		- button ( removes order request from list | calls respective warehouse object and reduces product by amount )
+		 * 		- functionally a warehouse shopping cart
+		 */ 
+		JPanel panel = new JPanel();
+		panel.setBorder(new LineBorder(null, 5));
+		panel.setBackground(SystemColor.info);
+		panel.setLayout(null);
+		
+		JLabel lblChooseStore = new JLabel("Select a Warehouse:");
+		lblChooseStore.setBounds(30, 15, 100, 35);
+		panel.add(lblChooseStore);
+		
+		JSpinner txtStoreId = new JSpinner(new SpinnerNumberModel(0, 0, 0, 1) );	// Because SKUs are incremental (design choice) spinner limits input to only valid inputs [ TODO: changes with data integrity ] 
+		txtStoreId.setBounds(130, 23, 80, 20);
+		panel.add(txtStoreId);
+		
+		JPanel pane = new JPanel();
+		pane.setBackground(new Color(102, 102, 102));
+		pane.setBounds(30, 61, 857, 530);
+		panel.add(pane);
+		pane.setLayout(null);
+		
+		
+		// maps table values
+		DefaultTableModel model = new DefaultTableModel(){
+		    @Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return column == 4 && row > 0;
+		    }
+		};  
+		model.addColumn("SKU");
+		model.addColumn("NAME");
+		model.addColumn("AMOUNT IN WAREHOUSE");
+		model.addColumn("PAR LEVEL");
+		model.addColumn("RESTOCK ORDERED");
+		
+		DefaultTableColumnModel columnModel = new DefaultTableColumnModel(); 	
+			int[] columnsWidth = { 10, 50, 50, 50, 50 };											// DEFINES WIDTH
+	        for( int i = 0; i < columnsWidth.length; i++ ) {							
+	    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
+	        }
+	        model.addRow( new Object [] {"SKU", "NAME", "AMOUNT IN WAREHOUSE", "PAR LEVEL", "RESTOCK ORDERED" });	// HEADER ROW
 		
 		    for( Product p : stores.get(0).getProducts() )
 		    {
