@@ -180,7 +180,7 @@ public class GUI extends JFrame {
 				//visiblePane = PanelBuilder.hqLogin();
 				//hqLogin will show you two buttons, either warehouse management or store management.
 				//On click store management, visiblePane = PanelBuilder.hq(HeadQuarters.Stores);
-				//On click warehousemanagement, visiblePane = PanelBuilder.hq(HeadQuarters.WareHouses);
+				//On click warehousemanagement, visiblePane = PanelBuilder.hq(HeadQuarters.WareHouses, 0);
 				//We'll overload the hq function in PanelBuilder.
 				visiblePane = PanelBuilder.hq( HeadQuarters.Stores );
 				visiblePane.setBounds(5, 5, 934, 635);

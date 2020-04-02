@@ -41,4 +41,9 @@ public class WareHouse {
 		// testing
 		this.pending = pending;
 	}
+	//Each warehouse should have a set of products.
+	public Object getProducts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

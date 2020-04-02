@@ -752,8 +752,8 @@ public class PanelBuilder {
 	}
 	
 	
-	//Overloading
-	public static JPanel hq(ArrayList<WareHouse> warehouses)
+	//I can't overloaod this function since they share ArrayList as the input. I'm adding a second, unused parameter as a hack.
+	public static JPanel hq(ArrayList<WareHouse> warehouses, int p)
 	{
 		/* x 	: used for switch case on what to return
 		 *
@@ -777,9 +777,9 @@ public class PanelBuilder {
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
 		
-		JLabel lblChooseStore = new JLabel("Select a Warehouse:");
-		lblChooseStore.setBounds(30, 15, 100, 35);
-		panel.add(lblChooseStore);
+		JLabel lblChooseWarehouse = new JLabel("Select a Warehouse:");
+		lblChooseWarehouse.setBounds(30, 15, 100, 35);
+		panel.add(lblChooseWarehouse);
 		
 		JSpinner txtStoreId = new JSpinner(new SpinnerNumberModel(0, 0, 0, 1) );	// Because SKUs are incremental (design choice) spinner limits input to only valid inputs [ TODO: changes with data integrity ] 
 		txtStoreId.setBounds(130, 23, 80, 20);
@@ -813,9 +813,9 @@ public class PanelBuilder {
 	        }
 	        model.addRow( new Object [] {"SKU", "NAME", "AMOUNT IN WAREHOUSE", "PAR LEVEL", "RESTOCK ORDERED" });	// HEADER ROW
 		
-		    for( Product p : stores.get(0).getProducts() )
+		    for( Product p1 : warehouses.get(0).getProducts() )
 		    {
-		    	model.addRow( new Object [] {p.getSKU(), p.getName(), p.getStockIn(), p.getStockPar(), 0} );
+		    	model.addRow( new Object [] {p1.getSKU(), p1.getName(), p1.getStockIn(), p1.getStockPar(), 0} );
 		    }
 	        
 	    JTable table = new JTable(model);
@@ -849,7 +849,8 @@ public class PanelBuilder {
 				         "Update Item stock", JOptionPane.OK_CANCEL_OPTION);
 				if ( result == JOptionPane.OK_OPTION ) {
 					try {
-						Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
+						//TODO: I'm confused by this code
+						//Store currentStore = warehouses.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
 						
 						currentStore.updateFullStock(currentStore.getProductBySKU(Integer.parseInt(sku.getText())), 
 															     Integer.parseInt(fullyStocked.getText()));
@@ -877,17 +878,18 @@ public class PanelBuilder {
 		button2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JPanel p = new JPanel();
-				p.add(new JLabel("Are you sure you want to restock Store " + stores.get(0).getStoreID() + "?"));
+				p.add(new JLabel("Are you sure you want to restock Store " + warehouses.get(0).getID() + "?"));
 				int result = JOptionPane.showConfirmDialog(null, p, 
 				         "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
 				if (result == JOptionPane.OK_OPTION) {
-					Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
+					WareHouse currentWarehouse = warehouses.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
 					
-					currentStore.getProductBySKU(0).setStockIn(1233213);
+					//This code doesn't work for stores either. we should fix.
+					//currentWarehouse.getProductBySKU(0).setStockIn(1233213);
 					
 					model.setRowCount(1);
 					
-				    for( Product product : currentStore.getProducts() )
+				    for( Product product : currentWarehouse.getProducts() )
 				    {
 				    	if( product.getStockPar() - product.getStockIn() > 0 ) 
 				    	{
