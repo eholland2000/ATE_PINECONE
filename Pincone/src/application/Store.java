@@ -27,7 +27,7 @@ public class Store {
 		this.storeID = storeID;
 				
 		// products = FromTable.getStoreProduct(storeID);		// from database
-		stores.add(this);							// + to list for indexing
+		stores.add(this);										// + to list for indexing
 	}
 	public Product getProductBySKU(int SKU) {
 		for (int i = 0; i < this.products.size(); i++) {

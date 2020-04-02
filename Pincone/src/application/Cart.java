@@ -10,9 +10,9 @@ public class Cart {
 	private String toCode    = "";											// "<PATH ID><TO ID>"
 	private static int orderIDIndex = 0;									// ID counters
 	
-	ArrayList<Product> products = new ArrayList<Product>();					// uses Stock In to track quantity
+	private ArrayList<Product> products = new ArrayList<Product>();					// uses Stock In to track quantity
 	public double total = 0;												// tracks cart total
-	public int orderID  = 0;
+	private int orderID  = 0;
 	
 	public Cart( String path )
 	{
@@ -28,7 +28,9 @@ public class Cart {
 		this.fromCode  = path.substring(0, path.indexOf('-'));		// "<PATH ID><FROM ID>"
 		this.toCode    = path.substring(path.indexOf('-') + 1);		// "<PATH ID><TO ID>"
 		this.total	   = 0;
-		this.orderID = orderIDIndex++;		// = then ++ | allows for 1 employee : to use 1 cart : many times a day( regardless of time )
+		this.orderID   = orderIDIndex++;		// = then ++ | allows for 1 employee : to use 1 cart : many times a day( regardless of time )
+		
+		this.orderCode += "-" + this.orderID;	// appends to end to make each order unique
 		orders.add(this);
 	}
 	public Cart getCartFrom( String fromCode ) throws NullPointerException
@@ -52,8 +54,18 @@ public class Cart {
 	{
 		return this.toCode;
 	}
+	public int getIndex()
+	{
+		return orderIDIndex;
+	}
+	public ArrayList<Product> getProducts()
+	{
+		return this.products;
+	}
 	public void setProduct(Product p, int quantity) {
 		// sets a products quantity regardless of prior entry
+		
+		System.out.println(p.getName() +"   @ " + quantity );
 		p.setStockIn(quantity);	// updates value of product to be added
 		int at = 0;
 		while( at < this.products.size() )
