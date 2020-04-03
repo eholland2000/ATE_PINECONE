@@ -70,6 +70,17 @@ public class GUI extends JFrame {
 				store.addNewProduct(gloves, 50, 40);
 				store.addNewProduct(coat, 20, 2);
 				
+				Product hat1    = new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
+				Product gloves1 = new Product(1, 10.00, "Gloves");
+				Product coat1   = new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
+				
+				warehouse.addNewProduct(hat1, 200, 200);
+				warehouse.addNewProduct(gloves1, 300, 300);
+				warehouse.addNewProduct(coat1, 500, 500);
+				
+				
+				
+				
 	    HeadQuarters.populatePending();			//dummy data [ creates 3 pending orders <W0-S0> <W0-S9> <W1-S0> ]
 		
 		JButton btnLogOut = new JButton("Log Out");
@@ -170,6 +181,7 @@ public class GUI extends JFrame {
 		hq.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//Create product
+				
 				//Edit product
 				//Store view
 				//Warehouse view
@@ -178,7 +190,7 @@ public class GUI extends JFrame {
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				visiblePane = PanelBuilder.hq( Store.getStores() );
+				visiblePane = PanelBuilder.hq( Store.getStores() , WareHouse.getWarehouses());
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 

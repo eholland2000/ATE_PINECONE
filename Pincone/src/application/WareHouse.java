@@ -22,6 +22,9 @@ public class WareHouse {
 	public ArrayList<Product> getProducts() {
 		return products;
 	}
+	public static ArrayList<WareHouse> getWarehouses() {
+		return warehouses;
+	}
 	public void updateCurrentStock(Product p, int currentStockQuantity) {
 		getProductBySKU(p.getSKU())  .setStockIn(currentStockQuantity);
 	}
@@ -32,6 +35,7 @@ public class WareHouse {
 	{
 		this.whID = id;
 		this.pending = HeadQuarters.getPending( this.whID );		
+		warehouses.add(this);
 	}
 	public ArrayList<Cart> getPending() 
 	{
@@ -44,6 +48,17 @@ public class WareHouse {
 			return true; 
 		}
 		return false;
+	}
+	public void addNewProduct(Product p, int fullStockQuantity, int currentStockQuantity) {
+		
+		if( getProductBySKU(p.getSKU()) == null )
+		{ 	// makes a new entry
+			p.setStockIn(currentStockQuantity);
+			p.setStockPar(fullStockQuantity);
+			products.add(p);
+		} else {
+			updateCurrentStock( p, currentStockQuantity );
+		}
 	}
 	public void revalidatePending()
 	{

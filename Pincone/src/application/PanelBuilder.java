@@ -29,6 +29,7 @@ public class PanelBuilder {
 	/*
 	 * JFrame defined to fixed resolution > Layouts are absolute ( lazy )
 	 */
+	private static boolean isStore = true;
 	static boolean refund = false;
 	static public JPanel POS( Store store )
 	{
@@ -594,7 +595,7 @@ public class PanelBuilder {
 		return panel;
 	}
 	
-	public static JPanel hq(ArrayList<Store> stores)
+	public static JPanel hq(ArrayList<Store> stores, ArrayList<WareHouse> warehouses)
 	{
 		/* x 	: used for switch case on what to return
 		 *
@@ -686,17 +687,28 @@ public class PanelBuilder {
 				         "Update Item stock", JOptionPane.OK_CANCEL_OPTION);
 				if ( result == JOptionPane.OK_OPTION ) {
 					try {
-						Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );
-						
-						currentStore.updateFullStock( currentStore.getProductBySKU(Integer.parseInt(sku.getText())), Integer.parseInt(fullyStocked.getText()) );
-						
-						model.setRowCount(1);
-						
-					    for( Product product : currentStore.getProducts() )
-					    {
-					    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
-					    }
-				        
+						if (isStore) {
+							Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );
+							
+							currentStore.updateFullStock( currentStore.getProductBySKU(Integer.parseInt(sku.getText())), Integer.parseInt(fullyStocked.getText()) );
+							
+							model.setRowCount(1);
+							
+						    for( Product product : currentStore.getProducts() )
+						    {
+						    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
+						    }
+						} else {
+							WareHouse currentWare = warehouses.get( new Integer((int)txtStoreId.getValue()) );
+							
+							currentWare.updateFullStock( currentWare.getProductBySKU(Integer.parseInt(sku.getText())), Integer.parseInt(fullyStocked.getText()) );
+							
+							model.setRowCount(1);
+							
+						    for( Product product : currentWare.getProducts() )
+						    {
+						    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );						    }
+						}
 						JOptionPane.showMessageDialog(null, "Success!");
 					} catch (NumberFormatException e) {
 						JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
@@ -709,59 +721,113 @@ public class PanelBuilder {
 		panel.add(button);
 
 		
-		JButton button2 = new JButton("Create Store Restock Order");
+		JButton button2 = new JButton("Create Restock Order");
 		button2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JPanel p = new JPanel();
-				p.add(new JLabel("Are you sure you want to restock Store " + stores.get(0).getStoreID() + "?"));
-				
-				int result = JOptionPane.showConfirmDialog(null, p, "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
-				if (result == JOptionPane.OK_OPTION) 
-				{
-					Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
-						
+				if (isStore) {
+					JPanel p = new JPanel();
+					p.add(new JLabel("Are you sure you want to restock Store " + stores.get(0).getStoreID() + "?"));
 					
-					Cart c = new Cart("W0-S" + currentStore.getStoreID() );		// TODO: add way for HQ store change
-					for( Product p1 : Store.getStoreByID(currentStore.getStoreID()).getProducts() )	// gets Store by static Store list
-				    {
-						if( p1.getStockPar() - p1.getStockIn() > 0 )
-						{
-							// if Product needs to be re-stocked  |  AUTO-ORDER amount is > 0 
-							// adds item by "AUTO-ORDER" value to orderCart
-							Product pSuper = Product.getProductBySKU( p1.getSKU() );		// gets default assigned values
-							Product lProd  = new Product(pSuper.getSKU(), pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
-							
-					    	c.setProduct( lProd, p1.getStockPar() - p1.getStockIn() );		// Updates value in cart relative to amount in store
-						}
-				    }
-					// updates Pending orders | COMPOSITE KEY = <FROM>-<TO>-<orderIDInedx>
-					HeadQuarters.addPending(c);
-					
-					// updates row values | StockIn updated on Pending sent by WareHouse
-					model.setRowCount(1);
-				    for( Product product : currentStore.getProducts() )
-				    {
-				    	if( product.getStockPar() - product.getStockIn() > 0 ) 
-				    	{
-				    		// if not negative 
-				    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), product.getStockPar() - product.getStockIn()} );
-				    	} else {
-				    		// 0 otherwise 
-				    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
-				    	}
-				    }
-				    
-				    
-				    String reciept = "ORDER_ID : W0-S" + currentStore.getStoreID() +"\n"; // TODO: add wh to each STORE or hardcode to W0
-					String[][] cart = c.cartToPrint();				// [ SKU ][ NAME ][ QUANTITY ][ @ AMOUNT ][ LINE TOTAL ]
-					for( String[] line : cart )
+					int result = JOptionPane.showConfirmDialog(null, p, "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
+					if (result == JOptionPane.OK_OPTION) 
 					{
-						// Compiles cart to receipt
-						reciept += line[0] +"|"+ line[1] + " @ "+ line[2] + "\n";
+						Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
+							
+						
+						Cart c = new Cart("W0-S" + currentStore.getStoreID() );		// TODO: add way for HQ store change
+						for( Product p1 : Store.getStoreByID(currentStore.getStoreID()).getProducts() )	// gets Store by static Store list
+					    {
+							if( p1.getStockPar() - p1.getStockIn() > 0 )
+							{
+								// if Product needs to be re-stocked  |  AUTO-ORDER amount is > 0 
+								// adds item by "AUTO-ORDER" value to orderCart
+								Product pSuper = Product.getProductBySKU( p1.getSKU() );		// gets default assigned values
+								Product lProd  = new Product(pSuper.getSKU(), pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
+								
+						    	c.setProduct( lProd, p1.getStockPar() - p1.getStockIn() );		// Updates value in cart relative to amount in store
+							}
+					    }
+						// updates Pending orders | COMPOSITE KEY = <FROM>-<TO>-<orderIDInedx>
+						HeadQuarters.addPending(c);
+						
+						// updates row values | StockIn updated on Pending sent by WareHouse
+						model.setRowCount(1);
+					    for( Product product : currentStore.getProducts() )
+					    {
+					    	if( product.getStockPar() - product.getStockIn() > 0 ) 
+					    	{
+					    		// if not negative 
+					    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), product.getStockPar() - product.getStockIn()} );
+					    	} else {
+					    		// 0 otherwise 
+					    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
+					    	}
+					    }
+					    
+					    
+					    String reciept = "ORDER_ID : W0-S" + currentStore.getStoreID() +"\n"; // TODO: add wh to each STORE or hardcode to W0
+						String[][] cart = c.cartToPrint();				// [ SKU ][ NAME ][ QUANTITY ][ @ AMOUNT ][ LINE TOTAL ]
+						for( String[] line : cart )
+						{
+							// Compiles cart to receipt
+							reciept += line[0] +"|"+ line[1] + " @ "+ line[2] + "\n";
+						}
+						reciept += "-------- ---------------";
+						JOptionPane.showMessageDialog(null, reciept);
 					}
-					reciept += "-------- ---------------";
-					JOptionPane.showMessageDialog(null, reciept);
+				} else {
+					JPanel p = new JPanel();
+					p.add(new JLabel("Are you sure you want to restock Warehouse" + warehouses.get(0).getwhID() + "?"));
+					
+					int result = JOptionPane.showConfirmDialog(null, p, "Confirm Warehouse Restock", JOptionPane.OK_CANCEL_OPTION);
+					if (result == JOptionPane.OK_OPTION) 
+					{
+						WareHouse currentWare = warehouses.get(0);	// TODO test this
+							
+						
+						Cart c = new Cart("WOO");		// TODO: add way for HQ store change
+						for( Product p1 : currentWare.getProducts() )	// gets Store by static Store list
+					    {
+							if( p1.getStockPar() - p1.getStockIn() > 0 )
+							{
+								// if Product needs to be re-stocked  |  AUTO-ORDER amount is > 0 
+								// adds item by "AUTO-ORDER" value to orderCart
+								Product pSuper = Product.getProductBySKU( p1.getSKU() );		// gets default assigned values
+								Product lProd  = new Product(pSuper.getSKU(), pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
+								
+						    	c.setProduct( lProd, p1.getStockPar() - p1.getStockIn() );		// Updates value in cart relative to amount in store
+							}
+					    }
+						// updates Pending orders | COMPOSITE KEY = <FROM>-<TO>-<orderIDInedx>
+						//HeadQuarters.addPending(c);
+						
+						// updates row values | StockIn updated on Pending sent by WareHouse
+						model.setRowCount(1);
+					    for( Product product : currentWare.getProducts() )
+					    {
+					    	if( product.getStockPar() - product.getStockIn() > 0 ) 
+					    	{
+					    		// if not negative 
+					    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), product.getStockPar() - product.getStockIn()} );
+					    	} else {
+					    		// 0 otherwise 
+					    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
+					    	}
+					    }
+					    
+					    
+					    String reciept = "ORDER_ID : W" + currentWare.getwhID() +"\n"; // TODO: add wh to each STORE or hardcode to W0
+						String[][] cart = c.cartToPrint();				// [ SKU ][ NAME ][ QUANTITY ][ @ AMOUNT ][ LINE TOTAL ]
+						for( String[] line : cart )
+						{
+							// Compiles cart to receipt
+							reciept += line[0] +"|"+ line[1] + " @ "+ line[2] + "\n";
+						}
+						reciept += "-------- ---------------";
+						JOptionPane.showMessageDialog(null, reciept);
+					}
 				}
+				
 				
 			}
 		});
@@ -772,6 +838,7 @@ public class PanelBuilder {
 		revalidateStore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
+					isStore = true;
 					Store currentStore = stores.get( new Integer((int) txtStoreId.getValue()) );
 					
 					model.setRowCount(1);
@@ -803,7 +870,13 @@ public class PanelBuilder {
 		revalidateWarehouse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					WareHouse currentWare = WareHouse.getWarehouseByID( new Integer((int) txtStoreId.getValue()) );
+					isStore = false;
+					WareHouse currentWare = WareHouse.getWarehouseByID( 0 );
+					if (currentWare != null) {
+						System.out.println("HI");
+					} else {
+						System.out.println("tost");
+					}
 					
 					model.setRowCount(1);
 					
