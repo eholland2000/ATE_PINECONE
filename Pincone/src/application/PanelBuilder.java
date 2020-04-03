@@ -777,7 +777,8 @@ public class PanelBuilder {
 		//return null;
 		
 	}
-	
+
+	/*
 	
 	
 	public static JPanel hq(ArrayList<WareHouse> warehouses, int p)
@@ -798,7 +799,8 @@ public class PanelBuilder {
 		 * 	3) > confirm order 
 		 * 		- button ( removes order request from list | calls respective warehouse object and reduces product by amount )
 		 * 		- functionally a warehouse shopping cart
-		 */ 
+		 */
+	/*
 		JPanel panel = new JPanel();
 		panel.setName("HQ");
 		panel.setBorder(new LineBorder(null, 5));
@@ -964,6 +966,7 @@ public class PanelBuilder {
 		//return null;
 		
 	}
+	*/
 
 	
 	
