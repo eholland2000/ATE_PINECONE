@@ -33,6 +33,7 @@ public class PanelBuilder {
 	{
 		// Instance of, make POS( Employee object and use it's )
 		JPanel panel = new JPanel();
+		panel.setName("STORE");
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
@@ -40,7 +41,7 @@ public class PanelBuilder {
 		
 		// TODO move to actual 
 		Employee test  = new Employee( store );
-		String label   ="Employee ID " + test.ID + ": " + test.lastName + ", " + test.firstName;
+		String label   ="Employee ID " + test.ID + ": " + test.getLastName() + ", " + test.getFirstName();
 		Cart storeCart = test.cart;
 		
 		JLabel lblOrderId = new JLabel(label);
@@ -303,8 +304,6 @@ public class PanelBuilder {
 						int tMon = Integer.parseInt(today.substring(0, today.indexOf('/')));
 						int tYear = Integer.parseInt(today.substring(today.indexOf('/') + 1));
 						
-						System.out.println(mon + "|" + year + "   " + today);
-						
 						if ( option == JOptionPane.OK_OPTION ) 
 						{
 							if( year < tYear || (mon < tMon && year == tYear) )
@@ -327,7 +326,7 @@ public class PanelBuilder {
 									reciept += "\nTotal: $" + storeCart.total;
 								else
 									reciept += "\nTotal: $" + -storeCart.total;
-								JOptionPane.showMessageDialog(null, reciept + "\n\n" + GUI.currentStore().checkoutCart(storeCart.products));
+								JOptionPane.showMessageDialog(null, reciept + "\n\n" + store.checkoutCart( storeCart.getProducts() ));
 								
 								storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved
 								
@@ -392,6 +391,7 @@ public class PanelBuilder {
 		 * 	Re-stock is automatically sent | 
 		 */
 		JPanel panel = new JPanel();
+		panel.setName("MANAGER");
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
@@ -461,13 +461,11 @@ public class PanelBuilder {
 				
 				if (result == JOptionPane.OK_OPTION) {
 				   try {
-					   Store store = GUI.currentStore();	
 					   
-					   if( store.getProductBySKU( Integer.parseInt(sku.getText()) ) != null )
+					   if( s.getProductBySKU( Integer.parseInt(sku.getText()) ) != null )
 					   {	
 						   // item exists in the store
-						   Product edited = store.getProductBySKU( Integer.parseInt(sku.getText()) );
-						   store.updateCurrentStock(edited, Integer.parseInt(currentStock.getText()));
+						   s.updateCurrentStock(s.getProductBySKU( Integer.parseInt(sku.getText()) ), Integer.parseInt(currentStock.getText()));
 						   
 						   JOptionPane.showMessageDialog(null, "Product updated!");
 					   } else {
@@ -495,6 +493,7 @@ public class PanelBuilder {
 	public static JPanel warehouse( WareHouse w ) 
 	{
 		JPanel panel = new JPanel();
+		panel.setName("WAREHOUSE");
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
@@ -532,15 +531,17 @@ public class PanelBuilder {
 	        }
 	        model.addRow( new Object [] {"ORDER ID", "SKU", "NAME", "AMOUNT ON ORDER", "SEND BY"});	// HEADER ROW
         
-	    w.revalidatePending();					// updates data of wh
+	    w.revalidatePending();							// updates warehouse to hq values data
 		ArrayList<Cart> pending = w.getPending();
+		System.out.println(w.getID() + "  has " + pending.size());
 		
 		for(Cart c : pending)
 		{
 			String[][] inCart = c.cartToPrint();		// each Cart( order request )
 			for(int i = 0; i < inCart.length; i++)
 			{
-				String[] line = new String[] { c.getOrderID(), inCart[i][0], inCart[i][1], inCart[i][3], "EOD"};
+				System.out.println(c.getOrderID()+"|" + inCart[i][0] + "| " + inCart[i][1] + "  -  " + inCart[i][2]);
+				String[] line = new String[] { c.getOrderID(), inCart[i][0], inCart[i][1], inCart[i][2], "EOD"};
 				model.addRow(line);
 			}
 		}
@@ -567,6 +568,8 @@ public class PanelBuilder {
 					String OrderId = orderID.getText().toUpperCase();
 					if( w.completeOrder(OrderId) )
 					{
+						w.revalidatePending();							// updates values from list
+						ArrayList<Cart> pending = w.getPending();		// gets updated list
 						model.setRowCount(1);
 					
 						for(Cart c : pending)
@@ -589,9 +592,28 @@ public class PanelBuilder {
 		
 		return panel;
 	}
+	
 	public static JPanel hq(ArrayList<Store> stores)
 	{
+		/* x 	: used for switch case on what to return
+		 *
+		 *
+		 * View
+		 * 	1) List of all Stores & Warehouses
+		 * 	2) List of all default Products			// calls STORE_PRODUCT( where STORE_ID = null )	| defaults
+		 * 	3) List of Pending store orders
+		 * 	4) List of Sent store orders
+		 * Function
+		 * 	1) > add Store/ warehouse
+		 * 		- Pop up Dialog
+		 * 	2) > add Product
+		 * 		- Pop up Dialog
+		 * 	3) > confirm order 
+		 * 		- button ( removes order request from list | calls respective warehouse object and reduces product by amount )
+		 * 		- functionally a warehouse shopping cart
+		 */ 
 		JPanel panel = new JPanel();
+		panel.setName("HQ");
 		panel.setBorder(new LineBorder(null, 5));
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
@@ -630,7 +652,7 @@ public class PanelBuilder {
 	        for( int i = 0; i < columnsWidth.length; i++ ) {							
 	    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
 	        }
-	        model.addRow( new Object [] {"SKU", "NAME", "AMOUNT IN STORE", "PAR LEVEL", "RESTOCK ORDERED" });	// HEADER ROW
+	        model.addRow( new Object [] {"SKU", "NAME", "AMOUNT IN STORE", "PAR LEVEL", "PENDING DELIVERY" });	// HEADER ROW
 		
 		    for( Product p : stores.get(0).getProducts() )
 		    {
@@ -662,21 +684,25 @@ public class PanelBuilder {
 				p.add(sku);
 				p.add(new JLabel("New Expected Fully Stocked Quantity"));
 				p.add(fullyStocked);
+				
+				
 				int result = JOptionPane.showConfirmDialog(null, p, 
 				         "Update Item stock", JOptionPane.OK_CANCEL_OPTION);
-				if (result == JOptionPane.OK_OPTION) {
+				if ( result == JOptionPane.OK_OPTION ) {
 					try {
-						stores.get(0).updateFullStock(stores.get(0).getProductBySKU(Integer.parseInt(sku.getText())), Integer.parseInt(fullyStocked.getText()));
-						JOptionPane.showMessageDialog(null, "Success!");
+						Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );
+						
+						currentStore.updateFullStock( currentStore.getProductBySKU(Integer.parseInt(sku.getText())), Integer.parseInt(fullyStocked.getText()) );
 						
 						model.setRowCount(1);
 						
-					    for( Product product : stores.get(0).getProducts() )
+					    for( Product product : currentStore.getProducts() )
 					    {
 					    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
 					    }
 				        
-					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "Success!");
+					} catch (NumberFormatException e) {
 						JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
 					}
 				}
@@ -692,18 +718,53 @@ public class PanelBuilder {
 			public void actionPerformed(ActionEvent arg0) {
 				JPanel p = new JPanel();
 				p.add(new JLabel("Are you sure you want to restock Store " + stores.get(0).getStoreID() + "?"));
-				int result = JOptionPane.showConfirmDialog(null, p, 
-				         "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
-				if (result == JOptionPane.OK_OPTION) {
-					stores.get(0).createRestockOrder();
+				
+				int result = JOptionPane.showConfirmDialog(null, p, "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
+				if (result == JOptionPane.OK_OPTION) 
+				{
+					Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
+						
 					
-					model.setRowCount(1);
-					
-				    for( Product product : stores.get(0).getProducts() )
+					Cart c = new Cart("W0-S" + currentStore.getStoreID() );		// TODO: add way for HQ store change
+					for( Product p1 : Store.getStoreByID(currentStore.getStoreID()).getProducts() )	// gets Store by static Store list
 				    {
-				    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), product.getStockPar() - product.getStockIn()} );
+						if( p1.getStockPar() - p1.getStockIn() > 0 )
+						{
+							// if Product needs to be re-stocked  |  AUTO-ORDER amount is > 0 
+							// adds item by "AUTO-ORDER" value to orderCart
+							Product pSuper = Product.getProductBySKU( p1.getSKU() );		// gets default assigned values
+							Product lProd  = new Product(pSuper.getSKU(), pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
+							
+					    	c.setProduct( lProd, p1.getStockPar() - p1.getStockIn() );		// Updates value in cart relative to amount in store
+						}
 				    }
-					JOptionPane.showMessageDialog(null, "Success!");
+					// updates Pending orders | COMPOSITE KEY = <FROM>-<TO>-<orderIDInedx>
+					HeadQuarters.addPending(c);
+					
+					// updates row values | StockIn updated on Pending sent by WareHouse
+					model.setRowCount(1);
+				    for( Product product : currentStore.getProducts() )
+				    {
+				    	if( product.getStockPar() - product.getStockIn() > 0 ) 
+				    	{
+				    		// if not negative 
+				    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), product.getStockPar() - product.getStockIn()} );
+				    	} else {
+				    		// 0 otherwise 
+				    		model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
+				    	}
+				    }
+				    
+				    
+				    String reciept = "ORDER_ID : W0-S" + currentStore.getStoreID() +"\n"; // TODO: add wh to each STORE or hardcode to W0
+					String[][] cart = c.cartToPrint();				// [ SKU ][ NAME ][ QUANTITY ][ @ AMOUNT ][ LINE TOTAL ]
+					for( String[] line : cart )
+					{
+						// Compiles cart to receipt
+						reciept += line[0] +"|"+ line[1] + " @ "+ line[2] + "\n";
+					}
+					reciept += "-------- ---------------";
+					JOptionPane.showMessageDialog(null, reciept);
 				}
 				
 			}
@@ -712,26 +773,12 @@ public class PanelBuilder {
 		panel.add(button2);
 		
 		return panel;
-		/* x 	: used for switch case on what to return
-		 *
-		 *
-		 * View
-		 * 	1) List of all Stores & Warehouses
-		 * 	2) List of all default Products			// calls STORE_PRODUCT( where STORE_ID = null )	| defaults
-		 * 	3) List of Pending store orders
-		 * 	4) List of Sent store orders
-		 * Function
-		 * 	1) > add Store/ warehouse
-		 * 		- Pop up Dialog
-		 * 	2) > add Product
-		 * 		- Pop up Dialog
-		 * 	3) > confirm order 
-		 * 		- button ( removes order request from list | calls respective warehouse object and reduces product by amount )
-		 * 		- functionally a warehouse shopping cart
-		 */ 
+		
 		//return null;
 		
 	}
+	
+
 	
 	
 	

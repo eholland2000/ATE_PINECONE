@@ -3,9 +3,9 @@ package application;
 import java.util.ArrayList;
 
 public class Employee {
-	String firstName;
-	String lastName;
-	String DOB;
+	private String firstName;
+	private String lastName;
+	private String DOB;
 	int ID;
 	Cart cart;
 	
@@ -30,6 +30,22 @@ public class Employee {
 		HeadQuarters.employees.add(this);
 	}
 	
+	public void setFirstName( String f ) 
+	{
+		this.firstName = f;
+	}
+	public void setLastName( String l )
+	{
+		this.lastName = l;
+	}
+	public String getFirstName()
+	{
+		return this.firstName;
+	}
+	public String getLastName()
+	{
+		return this.lastName;
+	}
 	public static boolean removeEmployee(Employee e) {
 		return HeadQuarters.employees.remove(e);
 	}

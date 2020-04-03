@@ -1,10 +1,6 @@
 package application;
 
-import java.io.Reader;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.HashMap;
 
 /*
  * A store needs:
@@ -31,7 +27,7 @@ public class Store {
 		this.storeID = storeID;
 				
 		// products = FromTable.getStoreProduct(storeID);		// from database
-		stores.add(this);							// + to list for indexing
+		stores.add(this);										// + to list for indexing
 	}
 	public Product getProductBySKU(int SKU) {
 		for (int i = 0; i < this.products.size(); i++) {
@@ -92,32 +88,10 @@ public class Store {
 		}
 	}
 	public void updateCurrentStock(Product p, int currentStockQuantity) {
-		getProductBySKU(p.getSKU()).setStockIn(currentStockQuantity);
+		getProductBySKU(p.getSKU())  .setStockIn(currentStockQuantity);
 	}
 	public void updateFullStock(Product p, int fullStockQuantity) {
-		getProductBySKU(p.getSKU()).setStockPar(fullStockQuantity);
-	}
-		
-	public String placeOrder(String paymentInfo, ArrayList<Product> cart) {
-		/*
-		 * At POS terminal
-		 */
-		checkoutCart(cart);
-		String[] card = paymentInfo.split(",");
-				
-		try {
-		if( card[0].length() == 16 )
-		{
-			if( card[1].length() == 5 )
-			{
-				if( card[2].length() == 3 )
-				{
-					return "Payment successfully processed.";
-				} } }
-		} catch ( IndexOutOfBoundsException e) {
-			return "Error, please try again."; 
-		}
-		return "Error, please try again.";
+		getProductBySKU(p.getSKU())  .setStockPar(fullStockQuantity);
 	}
 	public String checkoutCart(ArrayList<Product> cart) {
 		/*
@@ -165,7 +139,6 @@ public class Store {
 		
 		return row;
 	}
-	
 	public String[][] createRestockOrder() {
 		// [ SKU ][ NAME ][ ORDERING ]
 		String[][] row = new String[this.products.size()][3];		// [row][col]

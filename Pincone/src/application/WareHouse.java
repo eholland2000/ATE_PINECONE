@@ -7,20 +7,13 @@ public class WareHouse {
 	 * pending.get( OrderID );
 	 * pending.get( getOrderBy(id) ).get( item Line );
 	 */
-	private int whID;
-	private ArrayList<Cart> pending = new ArrayList<Cart>();
+	private int whID;												// Unique
+	private ArrayList<Cart> pending = new ArrayList<Cart>();		// Fetched from HQ on creation 
 	
 	public WareHouse( int id )
 	{
 		this.whID = id;
-	}
-	public WareHouse( int id, ArrayList<Cart> pending )
-	{
-		/*
-		 * pending orders was already created
-		 */
-		this.whID = id;
-		pendingAdd(pending);
+		this.pending = HeadQuarters.getPending( this.whID );		
 	}
 	public ArrayList<Cart> getPending() 
 	{
@@ -28,28 +21,29 @@ public class WareHouse {
 	}
 	public boolean completeOrder(String OrderId)
 	{
-		int index = 0;
-		for( Cart c : this.pending )
+		if( HeadQuarters.removePendingOrder( OrderId ) )
 		{
-			if( c.getOrderID().equals(OrderId) )
-			{
-				HeadQuarters.removePendingOrder( c.getOrderID() );
-				this.pending.remove(index);
-				return true;
-			}
-			index++;
+			return true; 
 		}
 		return false;
 	}
 	public void revalidatePending()
 	{
+		// testing
 		this.pending = HeadQuarters.getPending(this.whID);
 	}
 	public int getID()
 	{
 		return this.whID;
 	}
-	public void pendingAdd(ArrayList<Cart> pending) {
+	public void pendingAdd(ArrayList<Cart> pending) 
+	{
+		// testing
 		this.pending = pending;
+	}
+	//Each warehouse should have a set of products.
+	public Object getProducts() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

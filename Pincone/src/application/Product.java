@@ -12,6 +12,7 @@ public class Product {
 	private double price;   // $$
 	private	String name = "";	// common name
 	private String desc;	// description of the name
+	private static ArrayList<Product> products = new ArrayList<Product>(); 
 	
 	// 	static private ArrayList<Product> products = new ArrayList<Product>(); moved to Catalog to track default values
 	
@@ -30,6 +31,12 @@ public class Product {
 		this.price = price;
 		this.name = name;
 		this.desc = "";
+	}
+	public Product( Product p )
+	{
+		// create product from catalog item
+		// "Initializes from template"		& applies StockPar to new object
+		new Product(p.getSKU(), p.getPrice(), p.getName(), p.getDesc()).setStockPar( p.getStockPar() );;
 	}
 	public int getSKU()
 	{
@@ -54,6 +61,7 @@ public class Product {
 		return this.desc;
 	}
 	
+
 	public Object[] toArray()
 	{
 		return new Object[] { this.SKU, this.name, this.price };
@@ -67,8 +75,22 @@ public class Product {
 		this.stockPar = stockPar;
 	}
 	
-	public static Product getProductBySKU(int SKU) {
-		return Catalog.getProductBySKU( SKU );
+	static public void setCatalog(Product p)
+	{
+		/*
+		 * Default 
+		 */
+		products.add(p);
+	}
+	static public Product getProductBySKU(int SKU) {
+		for (int i = 0; i < products.size(); i++) {
+			if (products.get(i).getSKU() == SKU)
+			{
+				Product p = products.get(i);
+				return p;
+			}
+		}
+		return null;
 	}
 
 	//Just in case

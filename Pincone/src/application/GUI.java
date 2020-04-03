@@ -21,9 +21,8 @@ public class GUI extends JFrame {
 	private JPanel contentPane;
 	private JPanel visiblePane;
 	private JPanel previousPane;
-	private static Store store = new Store(0);				// the current store being edited : testing with new
-	private static WareHouse warehouse = new WareHouse(0);	// the current warehouse being edited : testing with new
-
+	Store store = new Store(0);				// the current store being edited : testing with new
+	WareHouse warehouse = new WareHouse(0);	// the current warehouse being edited : testing with new
 	
 	/**
 	 * Launch the application.
@@ -48,22 +47,6 @@ public class GUI extends JFrame {
 	public GUI() {
 		// https://stackoverflow.com/questions/41851429/how-to-switch-cards-from-a-button-on-a-card
 		
-		// Cataloged items with default values : determined by HQ
-		new Catalog ( new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball") );	
-		new Catalog ( new Product(1, 10.00, "Gloves") );
-		new Catalog ( new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm") );
-		
-		// Products to be added to a store
-		Product hat    = new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
-		Product gloves = new Product(1, 10.00, "Gloves");
-		Product coat   = new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
-		
-		store.addNewProduct(hat, 10, 10);
-		store.addNewProduct(gloves, 50, 40);
-		store.addNewProduct(coat, 20, 2);
-		
-	    HeadQuarters.populatePending();			//dummy data 
-
 		// ----- Base holder -----
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 960, 720);
@@ -72,51 +55,53 @@ public class GUI extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+		// ----- ----- ----- -----
+		// Defined by log in user ID prefix 
 		
+				Product hat    = new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
+				Product gloves = new Product(1, 10.00, "Gloves");
+				Product coat   = new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
+				
+				Product.setCatalog(hat);
+				Product.setCatalog(gloves);
+				Product.setCatalog(coat);
+				
+				store.addNewProduct(hat, 10, 10);
+				store.addNewProduct(gloves, 50, 40);
+				store.addNewProduct(coat, 20, 2);
+				
+	    HeadQuarters.populatePending();			//dummy data [ creates 3 pending orders <W0-S0> <W0-S9> <W1-S0> ]
 		
 		JButton btnLogOut = new JButton("Log Out");
 		btnLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				contentPane.remove(visiblePane);
 				
-				visiblePane = login();
-				visiblePane.setBounds(5, 5, 934, 635);
-				visiblePane.revalidate();
-
-				contentPane.add(visiblePane);
-				contentPane.revalidate();
-				contentPane.repaint();
+				if( visiblePane.getName().equals("LOGIN") )
+				{
+					// closes window
+					System.exit(0);
+				} else {
+					visiblePane = login();
+					visiblePane.setBounds(5, 5, 934, 635);
+					visiblePane.revalidate();
+	
+					contentPane.add(visiblePane);
+					contentPane.revalidate();
+					contentPane.repaint();
+				}
 			}
 		});
 		btnLogOut.setBounds(10, 647, 89, 23);
 		contentPane.add(btnLogOut);
 		
 		
-		// ----- Operated Pane -----
-		
-		visiblePane = login();
+		// ----- Operation Pane -----
+		visiblePane = login();					// Local
 		visiblePane.setBounds(5, 5, 934, 635);
 		contentPane.add(visiblePane);
 		visiblePane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
-		/*
-		JButton employee = new JButton("Employee log in [test button]");
-		visiblePane.add(employee);
-		employee.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				previousPane = visiblePane;			// previous is the view left from
-				contentPane.remove(visiblePane);
-				
-				visiblePane = PanelBuilder.POS();
-				visiblePane.setBounds(5, 5, 934, 635);
-				visiblePane.revalidate();
-
-				contentPane.add(visiblePane);
-				contentPane.revalidate();
-				contentPane.repaint();
-			}
-		});
-		*/
 	}
 	
 	private JPanel login() {
@@ -126,6 +111,7 @@ public class GUI extends JFrame {
 		 * 	No log in integrity
 		 */
 		JPanel toReturn = new JPanel();
+		toReturn.setName("LOGIN");
 		toReturn.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		JButton storeManager = new JButton("Store Manager log in [test button]");
@@ -135,7 +121,7 @@ public class GUI extends JFrame {
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				visiblePane = PanelBuilder.managerView(store);
+				visiblePane = PanelBuilder.managerView( store );
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 
@@ -159,7 +145,7 @@ public class GUI extends JFrame {
 				contentPane.add(visiblePane);
 				contentPane.revalidate();
 				contentPane.repaint();
-			}
+			} 
 		});
 		
 		JButton btnWarehouse = new JButton("Warehouse log in [test button]");
@@ -183,13 +169,16 @@ public class GUI extends JFrame {
 		toReturn.add(hq);
 		hq.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//Create product
+				//Edit product
+				//Store view
+				//Warehouse view
+				//Logout
 				
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				ArrayList<Store> stores = new ArrayList<>();
-				stores.add(store);
-				visiblePane = PanelBuilder.hq(stores);
+				visiblePane = PanelBuilder.hq( Store.getStores() );
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 
@@ -199,12 +188,6 @@ public class GUI extends JFrame {
 				
 			}
 		});
-		
 		return toReturn;
-	}
-
-
-	public static Store currentStore() {
-		return store;
 	}
 }
