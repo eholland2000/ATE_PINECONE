@@ -62,9 +62,9 @@ public class GUI extends JFrame {
 				Product gloves = new Product(1, 10.00, "Gloves");
 				Product coat   = new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
 				
-				Product.setCatalog(hat);
-				Product.setCatalog(gloves);
-				Product.setCatalog(coat);
+				Catalog.addCatalogProduct(hat);
+				Catalog.addCatalogProduct(gloves);
+				Catalog.addCatalogProduct(coat);
 				
 				store.addNewProduct(hat, 10, 10);
 				store.addNewProduct(gloves, 50, 40);

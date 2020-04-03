@@ -897,7 +897,30 @@ public class PanelBuilder {
 		JButton productView = new JButton("View Products");
 		productView.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				try {
+					model.addColumn("SKU");
+					model.addColumn("NAME");
+					model.addColumn("DESCRIPTION");
+					model.addColumn("PAR LEVEL");
+					
+					DefaultTableColumnModel columnModel = new DefaultTableColumnModel(); 	
+						int[] columnsWidth = { 10, 100, 500, 50 };											// DEFINES WIDTH
+				        for( int i = 0; i < columnsWidth.length; i++ ) {							
+				    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
+				        }
+						model.setRowCount(0);
+				        model.addRow( new Object [] {"SKU", "NAME", "DESCRIPTION", "PAR LEVEL"});			// HEADER ROW
+						table.setColumnModel(columnModel);
+						
+				    for( Product product : Catalog.getProducts() )
+				    {
+				    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getDesc(), product.getStockPar()} );
+				    }
+			        
+					JOptionPane.showMessageDialog(null, "Success!");
+				} catch (NumberFormatException e1) {
+					JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+				}
 			}
 		});
 		productView.setBounds(774, 21, 113, 23);
@@ -906,6 +929,52 @@ public class PanelBuilder {
 		JButton newProduct = new JButton("Create New Product");
 		newProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				JTextField sku = new JTextField(5);
+				JTextField price = new JTextField(5);
+				JTextField fullyStocked = new JTextField(5);
+				JTextField name = new JTextField(5);
+				  
+				JPanel p = new JPanel();
+				p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+				//p.add(new JLabel(Store.printAllStoreInventories()));
+				p.add(new JLabel("SKU:"));
+				p.add(sku);
+				p.add(new JLabel("Price:"));
+				p.add(price);
+				p.add(new JLabel("Name:"));
+				p.add(name);
+				p.add(new JLabel("Expected Fully Stocked Quantity"));
+				p.add(fullyStocked);
+				
+				int result = JOptionPane.showConfirmDialog(null, p, "Create new Product", JOptionPane.OK_CANCEL_OPTION);
+				if (result == JOptionPane.OK_OPTION) 
+				{
+					Product nP = new Product( Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), name.getText() );
+					nP.setStockPar(Integer.parseInt(fullyStocked.getText()));
+					Catalog.addCatalogProduct( nP );
+					
+					model.addColumn("SKU");
+					model.addColumn("NAME");
+					model.addColumn("DESCRIPTION");
+					model.addColumn("PAR LEVEL");
+					
+					DefaultTableColumnModel columnModel = new DefaultTableColumnModel(); 	
+						int[] columnsWidth = { 10, 100, 500, 50 };											// DEFINES WIDTH
+				        for( int i = 0; i < columnsWidth.length; i++ ) {							
+				    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
+				        }
+						model.setRowCount(0);
+				        model.addRow( new Object [] {"SKU", "NAME", "DESCRIPTION", "PAR LEVEL"});			// HEADER ROW
+						table.setColumnModel(columnModel);
+
+				    for( Product product : Catalog.getProducts() )
+				    {
+				    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getDesc(), product.getStockPar()} );
+				    }
+				} else {
+					JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+				}
 			}
 		});
 		newProduct.setBounds(200, 602, 150, 23);

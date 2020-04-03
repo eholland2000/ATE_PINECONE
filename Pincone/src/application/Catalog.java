@@ -11,6 +11,14 @@ public class Catalog {
 	{
 		// TODO : test / "is Proper?"
 	}
+	public static ArrayList<Product> getProducts()
+	{
+		return products;
+	}
+	public static void addCatalogProduct( Product p )
+	{
+		products.add(p);
+	}
 	public Catalog( Product p )
 	{
 		products.add( p );
