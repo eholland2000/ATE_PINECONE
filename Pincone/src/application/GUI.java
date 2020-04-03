@@ -145,7 +145,7 @@ public class GUI extends JFrame {
 				contentPane.add(visiblePane);
 				contentPane.revalidate();
 				contentPane.repaint();
-			}
+			} 
 		});
 		
 		JButton btnWarehouse = new JButton("Warehouse log in [test button]");
@@ -169,20 +169,16 @@ public class GUI extends JFrame {
 		toReturn.add(hq);
 		hq.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
+				//Create product
+				//Edit product
+				//Store view
+				//Warehouse view
+				//Logout
 				
 				previousPane = visiblePane;			// previous is the view left from
 				contentPane.remove(visiblePane);
 				
-				
-				//instead,
-				//visiblePane = PanelBuilder.hqLogin();
-				//hqLogin will show you two buttons, either warehouse management or store management.
-				//On click store management, visiblePane = PanelBuilder.hq(HeadQuarters.Stores);
-				//On click warehousemanagement, visiblePane = PanelBuilder.hq(HeadQuarters.WareHouses, 0);
-				//We'll overload the hq function in PanelBuilder.
-				visiblePane = PanelBuilder.hq( HeadQuarters.Stores );
+				visiblePane = PanelBuilder.hq( Store.getStores() );
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();
 
