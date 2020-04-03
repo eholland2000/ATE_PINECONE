@@ -59,4 +59,17 @@ public class WareHouse {
 		// testing
 		this.pending = pending;
 	}
+	public static WareHouse getWarehouseByID(int whID) {
+		for (int i = 0; i < warehouses.size(); i++) {
+			if (warehouses.get(i).getwhID() == whID)
+				return warehouses.get(i);
+		}
+		return null;
+	}
+	
 }
+
+
+
+
+

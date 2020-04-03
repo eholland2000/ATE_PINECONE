@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * 	- Fully stock levels
  * 	- Current stock levels
  * 	- Store manager
- *///
+ */
 public class Store {
 	private static ArrayList<Store> stores = new ArrayList<Store>();	// ref to all store objects
 	private int storeID;												// used to ID + get from tables
