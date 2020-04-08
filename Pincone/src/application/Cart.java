@@ -88,8 +88,8 @@ public class Cart {
 		// returns a row value for an item 
 		// [ SKU ][ NAME ][ QUANTITY ][ @ AMOUNT ][ LINE TOTAL ]
 		String[][] row = new String[this.products.size()][5];		// [row][col] 
-		total     = 0;		// resets total amount
-		int insertRow = 0;
+		total     	   = 0;		// resets total amount
+		int insertRow  = 0;
 		for( Product at : this.products )
 		{
 			row[insertRow][0] = at.getSKU() + "";

@@ -136,7 +136,7 @@ public class PanelBuilder {
 						int sku = new Integer((int)txtSku.getValue());
 						int amt = new Integer((int)spinner.getValue());
 						
-						Product pSuper = Product.getProductBySKU( sku );		// gets default assigned values
+						Product pSuper = Catalog.getProductBySKU( sku );		// gets default assigned values
 						Product p	   = new Product(sku, pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
 						storeCart.setProduct(p, amt);								// adds to cart
 						
@@ -158,8 +158,8 @@ public class PanelBuilder {
 						int sku = new Integer((int)txtSku.getValue());
 						int amt = new Integer((int)spinner.getValue());
 						
-						Product pSuper = Product.getProductBySKU( sku );		// gets default assigned values
-						Product p	   = new Product(sku, (-pSuper.getPrice()), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
+						Product pSuper = Catalog.getProductBySKU( sku );		// gets default assigned values
+						Product p	   = new Product(sku, (pSuper.getPrice()), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
 						storeCart.setProduct(p, (-amt));								// adds to cart
 						
 						model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
@@ -172,12 +172,12 @@ public class PanelBuilder {
 						
 						// updates price total
 						modelTotal.removeRow(0);
-						modelTotal.addRow(new Object[] {"Total", "$" + -storeCart.total} );
+						modelTotal.addRow(new Object[] {"Total", "$" + storeCart.total} );
 	
 						spinner.setValue(1);
 					}
 				} catch ( NumberFormatException | NullPointerException e ) {
-					txtSku.setValue("Invalid");
+					e.printStackTrace();
 				}
 				
 				pane.add(table);
@@ -235,7 +235,9 @@ public class PanelBuilder {
 					
 				}
 				// resets POS view
-				storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved
+				storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved |-<transaction id> : added internally
+											// updates cart ID header
+				lblOrderID.setText("Transaction code : " + storeCart.getOrderID());
 				
 				model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
 				modelTotal.removeRow(0);	// removes old row
@@ -255,7 +257,7 @@ public class PanelBuilder {
 					JTextField lookup = new JTextField(10);
 					Object[] options = new Object[] { "Search Customer by Phone", lookup };
 				
-					int r = JOptionPane.showConfirmDialog(null, options, "Rewards", JOptionPane.OK_CANCEL_OPTION);
+					int r = JOptionPane.showConfirmDialog(pane, options, "Rewards", JOptionPane.OK_CANCEL_OPTION);
 					try {
 						if (r != JOptionPane.OK_OPTION) {
 							break;
@@ -272,6 +274,7 @@ public class PanelBuilder {
 						JOptionPane.showMessageDialog(null, "Enter a valid, 10 digit phone number!");
 					}
 				}
+				
 				while ( true ) {
 					/*
 					 * Enter valid payment | or cancel to return to add item view
@@ -279,35 +282,102 @@ public class PanelBuilder {
 					JTextField cardNum = new JTextField(16);
 					JTextField expDate = new JTextField(5);
 					JTextField securityCode = new JPasswordField(3);
-					Object[] message = {
-							"Enter the 16-Digit Card Number:", cardNum,
-							"Enter the Expiration Date: (MM/YYYY)", expDate,
-							"Enter the 3-Digit Security Code:", securityCode
-					};
-
+					JTextField amount  = new JTextField(8);
+					
 					int option = 1;					// return from payment | allows cancel/ exit to exit payment
 					/*
 					 * is payment entered valid?
 					 */
-					option = JOptionPane.showConfirmDialog(null, message, "Payment", JOptionPane.OK_CANCEL_OPTION);		
+					
+					Object[] message = {
+							"Enter the 16-Digit Card Number:", cardNum,
+							"Enter the Expiration Date: (MM/YYYY)", expDate,
+							"Enter the 3-Digit Security Code:", securityCode,
+							"Amount to be paid:", amount
+					};
+					String[] payBy = { "Cash", "Credit", "Cancel" };		// 0: CASH | 1: CREDIT | 2: CANCEL
+					/*
+					showInputDialog(Component parentComponent, Object message, String title, int messageType, Icon icon, Object[] selectionValues, Object initialSelectionValue)*/
+					option = JOptionPane.showOptionDialog(pane, message, "Payment", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, payBy, null);		
 					
 					try{
-						new BigInteger(cardNum.getText().replaceAll("\\s", ""));			// all numbers | no spaces	: 16 nums > int ^lim
-						Integer.parseInt(securityCode.getText().replaceAll("\\s", ""));		// all numbers | no spaces
-						
-						// gets entered MM/YYYY
-						String date = expDate.getText();
-						int mon = Integer.parseInt(date.substring(0, date.indexOf('/')));
-						int year = Integer.parseInt(date.substring(date.indexOf('/') + 1));
-
-						// gets local MM/YYYY
-						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-						String today = formatter.format(LocalDate.now());
-						int tMon = Integer.parseInt(today.substring(0, today.indexOf('/')));
-						int tYear = Integer.parseInt(today.substring(today.indexOf('/') + 1));
-						
-						if ( option == JOptionPane.OK_OPTION ) 
+						if( option == 0 )
 						{
+							// CASH OPTION SELECTED
+							int paid = 0;
+							try {
+								paid = Integer.parseInt(amount.getText());
+							} catch( Exception e ) {
+								e.printStackTrace();
+								paid = 0;
+							}
+							// "Receipt"
+							String reciept = "";
+							String[][] cart = storeCart.cartToPrint();
+							
+							if( storeCart.total <= paid )
+							{
+								for( String[] line : cart )
+								{
+									// Compiles cart to recpt
+									reciept += line[1] +" -@"+ line[2] +" : $"+ line[3] +" each for subtotal $"+ line[4] + "\n";
+								}
+								reciept += "-------- ---------------";
+								reciept += "\nTotal:  $" + storeCart.total;
+								reciept += "\n-------- ---------------";
+
+								if( !refund )
+								{
+									reciept += "\nCash:   $" + paid;
+									reciept += "\nChange: $" + (paid - storeCart.total);
+								}
+								if( refund )
+								{
+									reciept += "\nCash:   $0.00";
+									reciept += "\nChange: $" + storeCart.total;
+								}
+								JOptionPane.showMessageDialog(pane, reciept + "\n\n" + store.checkoutCart( storeCart.getProducts() ));
+								// "Receipt" end
+								
+								// Update Store and Table view
+								storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved
+								
+								model.setRowCount(1);		// [cart table]  removes all old rows | keeps header (index = 0)
+								modelTotal.removeRow(0);	// [total table] removes old row
+								modelTotal.addRow(new Object[] {"Total", "$0.00"} );
+								
+								txtSku.setValue(0);			// resets spinners
+								spinner.setValue(1);
+															// updates cart ID header
+								lblOrderID.setText("Transaction code : " + storeCart.getOrderID());
+
+								panel.revalidate();
+								panel.repaint();
+								
+								
+								break;							
+							} else {
+								JOptionPane.showMessageDialog(pane, "Error: Insufficient funds");
+							}
+						}
+						if( option == 1 ) 
+						{
+							// CREDIT OPTION SELECTED
+							// CHECKS CREDIT INPUTS
+							new BigInteger(cardNum.getText().replaceAll("\\s", ""));			// all numbers | no spaces	: 16 nums > int ^lim
+							Integer.parseInt(securityCode.getText().replaceAll("\\s", ""));		// all numbers | no spaces
+							
+							// gets entered MM/YYYY
+							String date = expDate.getText();
+							int mon = Integer.parseInt(date.substring(0, date.indexOf('/')));
+							int year = Integer.parseInt(date.substring(date.indexOf('/') + 1));
+
+							// gets local MM/YYYY
+							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+							String today = formatter.format(LocalDate.now());
+							int tMon = Integer.parseInt(today.substring(0, today.indexOf('/')));
+							int tYear = Integer.parseInt(today.substring(today.indexOf('/') + 1));
+							
 							if( year < tYear || (mon < tMon && year == tYear) )
 							{ 	// date invalid 
 								throw new NumberFormatException("Date Invalid");
@@ -315,7 +385,7 @@ public class PanelBuilder {
 							
 							if ( cardNum.getText().length() == 16 &&  securityCode.getText().length() == 3 ) {
 								// card length & pin length test | date | valid entry
-									// "Reciept"
+								// "Receipt"
 								String reciept = "";
 								String[][] cart = storeCart.cartToPrint();
 								for( String[] line : cart )
@@ -325,20 +395,23 @@ public class PanelBuilder {
 								}
 								reciept += "-------- ---------------";
 								if( !refund )
-									reciept += "\nTotal: $" + storeCart.total;
+									reciept += "\nTotal:  $" + storeCart.total;
 								else
-									reciept += "\nTotal: $" + -storeCart.total;
-								JOptionPane.showMessageDialog(null, reciept + "\n\n" + store.checkoutCart( storeCart.getProducts() ));
+									reciept += "\nTotal:  $" + storeCart.total;
+								JOptionPane.showMessageDialog(pane, reciept + "\n\n" + store.checkoutCart( storeCart.getProducts() ));
+								// "Receipt" end
+								
 								
 								storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved
 								
-								model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
-								
-								modelTotal.removeRow(0);	// removes old row
+								model.setRowCount(1);		// [cart table]  removes all old rows | keeps header (index = 0)
+								modelTotal.removeRow(0);	// [total table] removes old row
 								modelTotal.addRow(new Object[] {"Total", "$0.00"} );
 								
 								txtSku.setValue(0);			// resets spinners
 								spinner.setValue(1);
+															// updates cart ID header
+								lblOrderID.setText("Transaction code : " + storeCart.getOrderID());
 								
 								panel.revalidate();
 								panel.repaint();
@@ -347,13 +420,13 @@ public class PanelBuilder {
 								throw new NumberFormatException("Invalid Card Number or Pin");
 							}
 						}
+						if( option == 2 )
+						{	
+							// CANCEL OPTION SELECTED
+							break;
+						}
 					} catch( Exception e ) {
-						//do nothing, returned to payment pop
-						JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
-					}
-					if( option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION )
-					{	// canceled
-						break;
+						JOptionPane.showMessageDialog(pane, "Error: " + e.getMessage());
 					}
 				}
 			}
@@ -366,9 +439,12 @@ public class PanelBuilder {
 			public void actionPerformed(ActionEvent e) {
 				storeCart.flushCart("S"+ store.getStoreID() + "-C");		// creates new cart outside of object, then retrieved
 				
-				model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
+											// updates cart ID header
+				lblOrderID.setText("Transaction code : " + storeCart.getOrderID());
+
+				model.setRowCount(1);		// [Cart table] | Removes all except header
 				
-				modelTotal.removeRow(0);	// removes old row
+				modelTotal.removeRow(0);	// [Total table]| Resets to 0
 				modelTotal.addRow(new Object[] {"Total", "$0.00"} );
 				
 				spinner.setValue(1);

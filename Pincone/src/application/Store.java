@@ -108,8 +108,8 @@ public class Store {
 					 *  reduces stockIn level by the amount in the cart
 					 *  
 					 *  WARNING : if the amount sold > inStock, the sale will process regardless ( as product physically exists, but is not in system )
+					 *    AKA: Refund mode was valid and the product can be resold ( ew )
 					 */
-					System.out.println(inStore.getStockIn() + "\t\t\t" +  cart.get(x).getStockIn());
 					updateCurrentStock( inStore, inStore.getStockIn() - cart.get(x).getStockIn() );
 				}
 			}
