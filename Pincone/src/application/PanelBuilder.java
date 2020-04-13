@@ -31,7 +31,7 @@ public class PanelBuilder {
 	 */
 	private static boolean isStore = true;
 	static boolean refund = false;
-	static public JPanel POS( Store store )
+	static public JPanel POS( Store store, String id )
 	{
 		// Instance of, make POS( Employee object and use it's )
 		JPanel panel = new JPanel();
@@ -43,7 +43,7 @@ public class PanelBuilder {
 		
 		// TODO move to actual 
 		Employee test  = new Employee( store );
-		String label   ="Employee ID " + test.ID + ": " + test.getLastName() + ", " + test.getFirstName();
+		String label   ="Employee ID " + id + ": " + test.getLastName() + ", " + test.getFirstName();
 		Cart storeCart = test.cart;
 		
 		JLabel lblOrderId = new JLabel(label);
@@ -931,7 +931,7 @@ public class PanelBuilder {
 				
 			}
 		});
-		revalidateStore.setBounds(216, 21, 113, 23);
+		revalidateStore.setBounds(216, 21, 150, 23);
 		panel.add(revalidateStore);
 		
 		JLabel lblSelectAWarehouse = new JLabel("Select a Warehouse:");
@@ -967,7 +967,7 @@ public class PanelBuilder {
 				}
 			}
 		});
-		revalidateWarehouse.setBounds(554, 21, 141, 23);
+		revalidateWarehouse.setBounds(554, 21, 180, 23);
 		panel.add(revalidateWarehouse);
 		
 		JButton productView = new JButton("View Products");
@@ -999,7 +999,7 @@ public class PanelBuilder {
 				}
 			}
 		});
-		productView.setBounds(774, 21, 113, 23);
+		productView.setBounds(754, 21, 150, 23);
 		panel.add(productView);
 		
 		JButton newProduct = new JButton("Create New Product");

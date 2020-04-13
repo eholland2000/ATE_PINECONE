@@ -9,8 +9,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-import org.json.*;
-
 public class FetchData {
 	
 	private ArrayList<CustomerOrder> building;

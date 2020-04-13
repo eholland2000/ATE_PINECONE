@@ -4,13 +4,25 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
+
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+
 import java.awt.CardLayout;
 import java.awt.Color;
+
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
@@ -45,6 +57,7 @@ public class GUI extends JFrame {
 	 * Create the frame.
 	 */
 	public GUI() {
+		setResizable(false);
 		// https://stackoverflow.com/questions/41851429/how-to-switch-cards-from-a-button-on-a-card
 		
 		// ----- Base holder -----
@@ -83,123 +96,132 @@ public class GUI extends JFrame {
 				
 	    HeadQuarters.populatePending();			//dummy data [ creates 3 pending orders <W0-S0> <W0-S9> <W1-S0> ]
 		
-		JButton btnLogOut = new JButton("Log Out");
+	
+	    
+	    
+		// Log in Pop-up
+		JTextField textID = new JTextField();
+		JPasswordField textPass = new JPasswordField();
+		
+		JPanel componentPanel = new JPanel();
+		componentPanel.setLayout(new GridLayout(2, 2));
+		componentPanel.add(new JLabel("ID:"));
+		componentPanel.add(textID);
+		componentPanel.add(new JLabel("Pass:"));
+		componentPanel.add(textPass);
+		
+		while( true )
+		{
+			// public static int showOptionDialog(Component parentComponent, Object message, String title, int optionType, int messageType, 
+			//			Icon icon, Object[] options, Object initialValue)
+			int result = JOptionPane.showOptionDialog(contentPane, new JComponent[]{componentPanel}, "FF-2000 | Login", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, 
+														null, new String[]{"Login", "Shutdown"}, 0);
+			
+			if( result == 0 )
+			{
+				String pass = ""; 
+				for( char a : textPass.getPassword() ) 
+				{ 
+					pass += a; 
+				};
+				visiblePane = login( textID.getText(), pass );
+				visiblePane.setBounds(5, 5, 934, 635);
+				visiblePane.revalidate();
+	
+				contentPane.add(visiblePane);
+				contentPane.revalidate();
+				contentPane.repaint();
+				
+				textID.setText("");
+				textPass.setText("");
+				
+				break;
+			}
+			if( result == 1 || result == JOptionPane.CLOSED_OPTION )
+			{
+				System.exit(0);
+				break;
+			}
+		}
+	    JButton btnLogOut = new JButton("Log Out");
 		btnLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				contentPane.remove(visiblePane);
+				contentPane.remove(btnLogOut);
+	
+				contentPane.revalidate();
+				contentPane.repaint();
 				
-				if( visiblePane.getName().equals("LOGIN") )
+				// public static int showOptionDialog(Component parentComponent, Object message, String title, int optionType, int messageType, 
+				//			Icon icon, Object[] options, Object initialValue)
+				int result = JOptionPane.showOptionDialog(contentPane, new JComponent[]{componentPanel}, "FF-2000 | Login", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, 
+															null, new String[]{"Login", "Shutdown"}, 0);
+				
+				if( result == 0 )
 				{
-					// closes window
-					System.exit(0);
-				} else {
-					visiblePane = login();
+					String pass = ""; 
+					for( char a : textPass.getPassword() ) 
+					{ 
+						pass += a; 
+					};
+					visiblePane = login( textID.getText(), pass );
 					visiblePane.setBounds(5, 5, 934, 635);
 					visiblePane.revalidate();
-	
+		
 					contentPane.add(visiblePane);
 					contentPane.revalidate();
 					contentPane.repaint();
+					
+					textID.setText("");
+					textPass.setText("");
+					
+				}
+				if( result == 1 || result == JOptionPane.CLOSED_OPTION )
+				{
+					System.exit(0);
 				}
 			}
 		});
-		btnLogOut.setBounds(10, 647, 89, 23);
+		btnLogOut.setBounds(840, 647, 89, 23);
 		contentPane.add(btnLogOut);
-		
-		
-		// ----- Operation Pane -----
-		visiblePane = login();					// Local
-		visiblePane.setBounds(5, 5, 934, 635);
-		contentPane.add(visiblePane);
-		visiblePane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		
 	}
 	
-	private JPanel login() {
+	private JPanel login( String id, String pass ) {
 		/*
 		 * Selection of profile buttons
 		 * 	Temporary log in to each kind of profile
 		 * 	No log in integrity
 		 */
-		JPanel toReturn = new JPanel();
-		toReturn.setName("LOGIN");
-		toReturn.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		//p.add(new JLabel(Store.printAllStoreInventories())); 					// ???
 		
-		JButton storeManager = new JButton("Store Manager log in [test button]");
-		toReturn.add(storeManager);
-		storeManager.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				previousPane = visiblePane;			// previous is the view left from
-				contentPane.remove(visiblePane);
+		/* 
+			HQ-0
+			S-0
+			SM-0
+			WM-0
+		 */	
+		if( id.contains("-") )
+		{
+			if( pass.equals("purduePete") || pass.equals("@"))
+			{
+				String is = id.substring(0, id.indexOf('-')).toUpperCase();
 				
-				visiblePane = PanelBuilder.managerView( store );
-				visiblePane.setBounds(5, 5, 934, 635);
-				visiblePane.revalidate();
-
-				contentPane.add(visiblePane);
-				contentPane.revalidate();
-				contentPane.repaint();				
+				if( is.equals("SM") )		 {
+					return PanelBuilder.managerView( store );
+					
+				} else if( is.equals("E") ) {
+					return PanelBuilder.POS( store, id );
+					
+				} else if( is.equals("WH") ) {
+					return PanelBuilder.warehouse( warehouse );
+					
+				} else if( is.equals("HQ")) {
+					return PanelBuilder.hq( Store.getStores() , WareHouse.getWarehouses());
+						
+				}
 			}
-		});
+		}
 		
-		JButton employee = new JButton("Employee log in [test button]");
-		toReturn.add(employee);
-		employee.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				previousPane = visiblePane;			// previous is the view left from
-				contentPane.remove(visiblePane);
-				
-				visiblePane = PanelBuilder.POS( store );
-				visiblePane.setBounds(5, 5, 934, 635);
-				visiblePane.revalidate();
-
-				contentPane.add(visiblePane);
-				contentPane.revalidate();
-				contentPane.repaint();
-			} 
-		});
-		
-		JButton btnWarehouse = new JButton("Warehouse log in [test button]");
-		toReturn.add(btnWarehouse);
-		btnWarehouse.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				previousPane = visiblePane;			// previous is the view left from
-				contentPane.remove(visiblePane);
-				
-				visiblePane = PanelBuilder.warehouse( warehouse );
-				visiblePane.setBounds(5, 5, 934, 635);
-				visiblePane.revalidate();
-
-				contentPane.add(visiblePane);
-				contentPane.revalidate();
-				contentPane.repaint();
-			}
-		});
-		
-		JButton hq = new JButton("Head Quarters log in [test button]");
-		toReturn.add(hq);
-		hq.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				//Create product
-				
-				//Edit product
-				//Store view
-				//Warehouse view
-				//Logout
-				
-				previousPane = visiblePane;			// previous is the view left from
-				contentPane.remove(visiblePane);
-				
-				visiblePane = PanelBuilder.hq( Store.getStores() , WareHouse.getWarehouses());
-				visiblePane.setBounds(5, 5, 934, 635);
-				visiblePane.revalidate();
-
-				contentPane.add(visiblePane);
-				contentPane.revalidate();
-				contentPane.repaint();
-				
-			}
-		});
-		return toReturn;
+		return new JPanel();
 	}
 }
