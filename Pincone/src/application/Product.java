@@ -38,6 +38,12 @@ public class Product {
 		// "Initializes from template"		& applies StockPar to new object
 		new Product(p.getSKU(), p.getPrice(), p.getName(), p.getDesc()).setStockPar( p.getStockPar() );;
 	}
+	public Product(int SKU, String name, int stockIn) {
+		//Product initializer for customer order
+		this.SKU = SKU;
+		this.name = name;
+		this.stockIn = stockIn;
+	}
 	public int getSKU()
 	{
 		return this.SKU;

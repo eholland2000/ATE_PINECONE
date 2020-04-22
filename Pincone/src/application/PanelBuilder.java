@@ -588,7 +588,7 @@ public class PanelBuilder {
 		pane.setLayout(null);
 		
 		
-		// maps table values
+		//WAREHOUSE ORDERS TABLE
 		DefaultTableModel model = new DefaultTableModel(){
 		    @Override
 		    public boolean isCellEditable(int row, int column)
@@ -627,47 +627,144 @@ public class PanelBuilder {
 	    JTable table = new JTable(model);
 		table.setBounds(10, 11, 837, 508);
 		table.setShowVerticalLines(false);
-		pane.add(table);
-		
 		table.setColumnModel(columnModel);
+		pane.add(table);
+
+		//CUSTOMER ORDERS TABLE
+		DefaultTableModel customerModel = new DefaultTableModel() {
+		    @Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+		};
+		customerModel.addColumn("ORDER ID");
+		customerModel.addColumn("ORDER TIMESTAMP");
+		customerModel.addColumn("STATUS");
+		customerModel.addColumn("SKU");
+		customerModel.addColumn("PRODUCT");
+		customerModel.addColumn("QUANTITY");
+		
+		DefaultTableColumnModel customerColumnModel = new DefaultTableColumnModel(); 	
+			int[] customerColumnsWidth = { 10, 60, 10, 8, 100, 10 };											// DEFINES WIDTH
+	        for( int i = 0; i < customerColumnsWidth.length; i++ ) {							
+	    		customerColumnModel.addColumn(new TableColumn(i, customerColumnsWidth[i]));
+	        }
+	        customerModel.addRow( new Object [] {"ORDER ID", "ORDER TIMESTAMP", "STATUS", "SKU", "PRODUCT", "QUANTITY"});	// HEADER ROW
+       
+		ArrayList<CustomerOrder> orders = new FetchData().loadCustomerOrders();
+		
+        for( int i = 0; i < orders.size(); i++ ) {
+        	for (int j = 0; j < orders.get(i).getItems().size(); j++) {
+        		Object[] line;
+        		if (j == 0) {
+        			line = new Object[] { orders.get(i).getOrderID(), orders.get(i).getOrderDateTime(), 
+        				orders.get(i).getStatus(), orders.get(i).getItems().get(j).getSKU(), orders.get(i).getItems().get(j).getName(),
+        				orders.get(i).getItems().get(j).getStockIn()};
+        		} else {
+        			line = new Object[] { null, null, null, 
+        					orders.get(i).getItems().get(j).getSKU(), orders.get(i).getItems().get(j).getName(),
+            				orders.get(i).getItems().get(j).getStockIn()};
+        		}
+				customerModel.addRow(line);
+        	}
+        }
+	        
+	    JTable customerTable = new JTable(customerModel);
+		customerTable.setBounds(10, 11, 837, 508);
+		customerTable.setShowVerticalLines(false);
+		customerTable.setColumnModel(customerColumnModel);
+		
+		
 		
 		JButton button = new JButton("Complete Order");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JPanel pane = new JPanel();
-				JTextField orderID = new JTextField(5);
-				pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
-				pane.add(new JLabel("Order ID: "));
-				pane.add(orderID);
-				
-				int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter OrderId", JOptionPane.OK_CANCEL_OPTION);
-				if( result == JOptionPane.OK_OPTION )
-				{
-					String OrderId = orderID.getText().toUpperCase();
-					if( w.completeOrder(OrderId) )
-					{
-						w.revalidatePending();							// updates values from list
-						ArrayList<Cart> pending = w.getPending();		// gets updated list
-						model.setRowCount(1);
+				if (arg0.getActionCommand().equals("Warehouse")) {
+					JPanel pane = new JPanel();
+					JTextField orderID = new JTextField(5);
+					pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+					pane.add(new JLabel("Order ID: "));
+					pane.add(orderID);
 					
-						for(Cart c : pending)
+					int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter OrderId", JOptionPane.OK_CANCEL_OPTION);
+					if( result == JOptionPane.OK_OPTION )
+					{
+						String OrderId = orderID.getText().toUpperCase();
+						if( w.completeOrder(OrderId) )
 						{
-							String[][] inCart = c.cartToPrint();		// each Cart( order request )
-							for(int i = 0; i < inCart.length; i++)
+							w.revalidatePending();							// updates values from list
+							ArrayList<Cart> pending = w.getPending();		// gets updated list
+							model.setRowCount(1);
+						
+							for(Cart c : pending)
 							{
-								String[] line = new String[] { c.getOrderID(), inCart[i][0], inCart[i][1], inCart[i][3], "EOD"};
-								model.addRow(line);
+								String[][] inCart = c.cartToPrint();		// each Cart( order request )
+								for(int i = 0; i < inCart.length; i++)
+								{
+									String[] line = new String[] { c.getOrderID(), inCart[i][0], inCart[i][1], inCart[i][3], "EOD"};
+									model.addRow(line);
+								}
 							}
+						} else {
+							JOptionPane.showConfirmDialog(null, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);
 						}
-					} else {
-						JOptionPane.showConfirmDialog(null, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);
 					}
-				} 
+				} else {
+					JPanel pane = new JPanel();
+					JTextField orderID = new JTextField(5);
+					pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+					pane.add(new JLabel("Order ID: "));
+					pane.add(orderID);
+					
+					int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter OrderId", JOptionPane.OK_CANCEL_OPTION);
+					if( result == JOptionPane.OK_OPTION )
+					{
+						String OrderId = orderID.getText().toUpperCase();
+						int indexOfMatch = -1;
+						for (int a = 0; a < orders.size(); a++) {
+							if (orders.get(a).getOrderID().equals(OrderId))
+								indexOfMatch = a;
+						}
+						if(indexOfMatch != -1) {
+							orders.get(indexOfMatch).setStatus("Completed");
+							new FetchData().setCompletedOrder(orders.get(indexOfMatch).getOrderID());
+							pane.repaint();
+						} else {
+							JOptionPane.showConfirmDialog(null, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				}
 			}
 		});
 		button.setBounds(40, 602, 150, 23);
+		button.setActionCommand("Warehouse");
 		panel.add(button);
 		
+		JButton toCustomerOrder = new JButton("Online Orders");
+				toCustomerOrder.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						if (arg0.getActionCommand().equals("To Customer")) {
+							pane.remove(table);
+							pane.add(customerTable);
+							toCustomerOrder.setText("Warehouse Orders");
+							toCustomerOrder.setActionCommand("To Warehouse");
+							button.setActionCommand("Online");
+							pane.repaint();
+						} else {
+							pane.remove(customerTable);
+							pane.add(table);
+							toCustomerOrder.setText("Online Orders");
+							toCustomerOrder.setActionCommand("To Customer");
+							button.setActionCommand("Warehouse");
+							pane.repaint();
+						}
+					}
+				});
+		toCustomerOrder.setActionCommand("To Customer");
+		toCustomerOrder.setBounds(200, 602, 150, 23);
+		panel.add(toCustomerOrder);
+				
 		return panel;
 	}
 	

@@ -6,6 +6,14 @@ public class Customer {
 	private static ArrayList<Customer> customers = new ArrayList<Customer>();
 	private String firstName;
 	private String lastName;
+	private String address;
+	private String city;
+	private String state;
+	private String zip;
+	private String cell;
+	private String email;
+	private ArrayList<CustomerOrder> onlineOrders;
+	private ArrayList<CustomerOrder> storeOrders;
 	private String number;
 	private String DOB;
 	private Cart cart;
