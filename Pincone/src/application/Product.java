@@ -18,12 +18,17 @@ public class Product {
 	
 	public Product(int SKU, double price, String name, String desc) 
 	{
-		
 		this.SKU = SKU;
 		this.price = price;
 		this.name = name;
 		this.desc = desc;
 	}
+	public Product() {
+		this.SKU = 0;
+		this.name = "";
+		this.stockIn = 0;
+	}
+	
 	public Product(int SKU, double price, String name) 
 	{
 		// can be entered without a description of the product 
@@ -73,7 +78,12 @@ public class Product {
 		return new Object[] { this.SKU, this.name, this.price };
 	}
 	
-	
+	public void setSKU(int SKU) {
+		this.SKU = SKU;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	public void setStockIn(int stockIn) {
 		this.stockIn = stockIn;
 	}

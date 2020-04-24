@@ -652,7 +652,7 @@ public class PanelBuilder {
 	        }
 	        customerModel.addRow( new Object [] {"ORDER ID", "ORDER TIMESTAMP", "STATUS", "SKU", "PRODUCT", "QUANTITY"});	// HEADER ROW
        
-		ArrayList<CustomerOrder> orders = new FetchData().loadCustomerOrders();
+		ArrayList<CustomerOrder> orders = FetchData.loadCustomerOrders();
 		
         for( int i = 0; i < orders.size(); i++ ) {
         	for (int j = 0; j < orders.get(i).getItems().size(); j++) {
@@ -728,7 +728,25 @@ public class PanelBuilder {
 						}
 						if(indexOfMatch != -1) {
 							orders.get(indexOfMatch).setStatus("Completed");
-							new FetchData().setCompletedOrder(orders.get(indexOfMatch).getOrderID());
+							FetchData.setCompletedOrder(orders.get(indexOfMatch).getOrderID());
+							customerModel.setRowCount(1);
+							ArrayList<CustomerOrder> orders = FetchData.loadCustomerOrders();
+							
+					        for( int i = 0; i < orders.size(); i++ ) {
+					        	for (int j = 0; j < orders.get(i).getItems().size(); j++) {
+					        		Object[] line;
+					        		if (j == 0) {
+					        			line = new Object[] { orders.get(i).getOrderID(), orders.get(i).getOrderDateTime(), 
+					        				orders.get(i).getStatus(), orders.get(i).getItems().get(j).getSKU(), orders.get(i).getItems().get(j).getName(),
+					        				orders.get(i).getItems().get(j).getStockIn()};
+					        		} else {
+					        			line = new Object[] { null, null, null, 
+					        					orders.get(i).getItems().get(j).getSKU(), orders.get(i).getItems().get(j).getName(),
+					            				orders.get(i).getItems().get(j).getStockIn()};
+					        		}
+									customerModel.addRow(line);
+					        	}
+					        }
 							pane.repaint();
 						} else {
 							JOptionPane.showConfirmDialog(null, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);

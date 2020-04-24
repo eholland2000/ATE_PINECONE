@@ -17,26 +17,12 @@ public class FetchData {
 	
 	private static ArrayList<CustomerOrder> building;
 	
-	public FetchData() {
-		building = new ArrayList<>();
-	}
-	
 	public static ArrayList<CustomerOrder> loadCustomerOrders() {
+		building = new ArrayList<>();
 		getOrders();
 		for (int a = 0; a < building.size(); a++) {
 			building.get(a).setItems(getOrderItems(building.get(a).getOrderID()));
 		}
-		
-//		for(CustomerOrder order : building) {
-//			System.out.println(order.getOrderID());
-//			System.out.println(order.getOrderDateTime());
-//			System.out.println(order.getStatus());
-//			for(Product p : order.getItems()) {
-//				System.out.println(p.getSKU());
-//				System.out.println(p.getName());
-//				System.out.println(p.getStockIn());
-//			}
-//		}
 		return building;
 	}
 	
@@ -53,7 +39,7 @@ public class FetchData {
 			for (int i = 0; i < json.length(); i++) {
 				boolean newEntry = true;
 				for (int j = 0; j < building.size(); j++) {
-					if (building.get(j).getOrderID().equals(json.getJSONObject(i).getString("order_id"))) {
+					if (building.get(j).getOrderID().equals(json.getJSONObject(i).getString("ID"))) {
 						newEntry = false;
 						break;
 					}
@@ -61,19 +47,19 @@ public class FetchData {
 				if (newEntry) {
 					building.add(new CustomerOrder());
 					index++;
-					building.get(index).setOrderID(json.getJSONObject(i).getString("order_id"));
-					building.get(index).setOrderDateTime(json.getJSONObject(i).getString("date_created"));
+					building.get(index).setOrderID(json.getJSONObject(i).getString("ID"));
+					building.get(index).setOrderDateTime(json.getJSONObject(i).getString("post_date"));
 					building.get(index).setStatus("Processing");
 				}
-				if(json.getJSONObject(i).getString("meta_key").equals("billing_address_1")) {
+				if(json.getJSONObject(i).getString("meta_key").equals("_billing_address_1")) {
 					building.get(index).setAddress1(json.getJSONObject(i).getString("meta_value"));
-				} else if (json.getJSONObject(i).getString("meta_key").equals("billing_address_2")) {
+				} else if (json.getJSONObject(i).getString("meta_key").equals("_billing_address_2")) {
 					building.get(index).setAddress2(json.getJSONObject(i).getString("meta_value"));
-				} else if (json.getJSONObject(i).getString("meta_key").equals("billing_city")) {
+				} else if (json.getJSONObject(i).getString("meta_key").equals("_billing_city")) {
 					building.get(index).setCity(json.getJSONObject(i).getString("meta_value"));
-				} else if (json.getJSONObject(i).getString("meta_key").equals("billing_state")) {
+				} else if (json.getJSONObject(i).getString("meta_key").equals("_billing_state")) {
 					building.get(index).setState(json.getJSONObject(i).getString("meta_value"));
-				} else if (json.getJSONObject(i).getString("meta_key").equals("billing_postal_code")) {
+				} else if (json.getJSONObject(i).getString("meta_key").equals("_billing_postcode")) {
 					building.get(index).setZip(json.getJSONObject(i).getString("meta_value"));
 				}
 				
@@ -88,14 +74,45 @@ public class FetchData {
     	ArrayList<Product> products = new ArrayList<>();
         String url = "http://group8fastfit.com/app_data/order_products.php?orderID=%27" + id + "%27";
         JSONArray json;
+        String url2 = "http://group8fastfit.com/app_data/product_skus.php";
 		try {
 			json = readJsonFromUrl(url);
+			int index = -1;
+			int orderItemID = 0;
 			for (int i = 0; i < json.length(); i++)
 			{
-				products.add(new Product(Integer.parseInt(json.getJSONObject(i).getString("sku")), 
-						json.getJSONObject(i).getString("order_item_name"), 
-						Integer.parseInt(json.getJSONObject(i).getString("product_qty"))));
+				boolean newEntry = true;
+				for (int j = 0; j < products.size(); j++) {
+					if (orderItemID == Integer.parseInt(json.getJSONObject(i).getString("order_item_id"))) {
+						newEntry = false;
+						break;
+					}
+				}
+				if (newEntry) {
+					products.add(new Product());
+					index++;
+					orderItemID = Integer.parseInt(json.getJSONObject(i).getString("order_item_id"));
+					products.get(index).setName(json.getJSONObject(i).getString("order_item_name"));
+				}
+				if(json.getJSONObject(i).getString("meta_key").equals("_product_id")) {
+					products.get(index).setSKU(Integer.parseInt(json.getJSONObject(i).getString("meta_value")));
+				} else if (json.getJSONObject(i).getString("meta_key").equals("_qty")) {
+					products.get(index).setStockIn(Integer.parseInt(json.getJSONObject(i).getString("meta_value")));
+				}
 			}
+			json = readJsonFromUrl(url2);
+			index = -1;
+			for (int i = 0; i < json.length(); i++) 
+			{
+				for (int j = 0; j < products.size(); j++) 
+				{
+					if(products.get(j).getSKU() == Integer.parseInt(json.getJSONObject(i).getString("product_id"))) {
+						products.get(j).setSKU(Integer.parseInt(json.getJSONObject(i).getString("sku")));
+						break;
+					} 
+				}
+			}
+			
 			return products;
         } catch (IOException | JSONException e1) {
 			// TODO Auto-generated catch block
@@ -107,9 +124,15 @@ public class FetchData {
     public static void setCompletedOrder(String id) {
         try {
             // get URL content
-            URL url = new URL("http://group8fastfit.com/app_data/completed.php?orderID=%27" + id + "%27");
-            URLConnection conn = url.openConnection();
+            URL url = new URL("http://group8fastfit.com/app_data/completeOrder.php?ID='" + id + "'");
+            BufferedReader in = new BufferedReader(
+            new InputStreamReader(url.openStream()));
 
+            String inputLine;
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+            in.close();
+            
             System.out.println("Done");
 
         } catch (MalformedURLException e) {
