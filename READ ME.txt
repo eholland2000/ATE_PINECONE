@@ -1,0 +1,200 @@
++===========================================================================================+
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::+=======================================================================+:::::::::|
+|:::::::::|    ______    ______           _____     _____     _____     _____	  |:::::::::|
+|:::::::::|  F _____|  F _____|          /  _  `.  /  _  \   /  _  \   /  _  \    |:::::::::|
+|:::::::::| J |____/  J |____/  ______  t_/ 7 .'   F |/ | l  F |/ | l  J |/ | l   |:::::::::|
+|:::::::::| | _____|  | _____| |______| `- :'.'    | | /| |  | | /| |  | | /| |   |:::::::::|
+|:::::::::| F |___/   F |___/  L______J .' ;_J__   F  /_J l  F  /_J l  F  /_J l   |:::::::::|
+|:::::::::| J__F      J__F             J________L J\______/FJ\______/FJ\______/F  |:::::::::|
+|:::::::::| |__|      |__|             |________|  J______F  J______F  J______F   |:::::::::|
+|:::::::::|									  |:::::::::|
+|:::::::::+=======================================================================+:::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
++===========================================================================================+
+
++===========================================================================================+
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::|				Introduction				|:::::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
++===========================================================================================+
+
+	Welcome to Fast-Fit 2000, your new work buddy! Inside you'll find the wondrous world
+of a of simple to use hands-free Inventory Management System, tailored just for you! No longer 
+the days of paying someone to count everything in each of your stores, no longer will they 
+frantically try to guess how many hats, gloves, and coats there are in the pile of your 
+delicious merchandise in the stockroom. It is time to let go of the constant worry of relying
+on others to count youre beautiful wares and clothing items, and let mathematics do the hard
+work so you can kick back and run your business.
+
+	Using math, diagrams, and technology; us at Gr8-Pinecone have digitized your entire 
+business and workforce. Welcome to the future. Incorporated with your copy of Fast-Fit 2000:
+Fast-Fit 2000D, a complete functioning database of every product, order sent, and person 
+hired. We've brought your team on board and are handing you the reins. Everything you need
+to know is right below. Good luck.
+
+
+
++===========================================================================================+
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::|	Loging in and using the 4 in 1 controled view application	|:::::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
++===========================================================================================+
+
++ --$-- + Employee Purchase of Sale (POS) view 
+=	= 
+=	= All Employees log in with "E-XXXXXX" and their assigned password.
+=	= - = Give it a try, log in as a model employee ID:E-000000 and Password:@
+=	= - = This is a temporary account and will be removed on install
+=	= - = All accounts can be logged in with the Passord:@ backdoor 
+=	= 
+=	= In the Employee view, users can add products to a digital shopping cart to then be 
+=	= purchased. Once purchased the items bought will be removed from the stores inventory
+=	=
+=	= Employees are also able to process returns at the POS terminal, with the use of the 
+=	= "Refund Mode" button. NOTE: The employee should first assess the return item for 
+=	= product damage or invaild receipts. 
+=	=
++ --$-- +
+
++ --^-- + Store Manager view
+=	=
+=	= Store managers need a way to know what products they have and to be able to correct 
+=	= mistakes. In here authorized store managers are able to accept shipments and adjust
+=	= inventory amounts in case of issues. 
+=	= - = Want to see how it works? Log in with ID:SM-000000 and Password:@
+=	=
++ --^-- +
+
++ --%-- + Warehouse Employee view
+=	=
+=	= Warehouse employees are able to access their assigned warehouse's orders by loging in
+=	= with "WH-XXXXXX" and their assigned password.
+=	= - = Check it out, we've set up a model worker with the ID:WH-000000 and Password:@
+=	= 
+=	= In here you will be able to see the order requests for warehouse 0
+=	= - = Once an order is complete, employees should update the system with the 
+=	= - = "Complete Order" button
+=	=
++ --%-- + 
+
++ --#-- + Head Quarters view
+=	=
+=	= The top dog. In here you will be able to see every detail of what is where, and who can
+=	= move it. Not only do you have full control over your domain, but you also can create 
+=	= within it. The FF-2000 not only is capable of managing your day-to-day transactions, but
+=	= also be built upon. In the fortunate event that you use your saved time to expand 
+=	= operations, FF-2000 HQ view will make those complex mergers a breeze. Automated through
+=	= these use of computers, connect any supplier or product directly into the system; next
+=	= time you a store refiled from a warehouse, or a warehouse from a supplier, simply ask to
+=	= be restocked and the FF-2000 with calculate what you need and submit the invoice for you. 
+=	=
+=	= Because we understand the market is voliatle, and coats sell better in the winter, we've 
+=	= enabled an access point to allow you to adjust the amount of product being sent to stores
+=	= to make those suavey decisions. 
+=	=
+=	= Check out the new gear with the ultimate authority with the ID:HQ-0 and Password:@
+=	= - = It is advized to update the database with more secure login credentials after
+=	= - = inital product testing.
+=	=
++ --#-- +
+
++ -- -- + Default logins
+=	= 
+=	= NOTE: remove logins after inital setup for improved security
+=	= 
+=	= Employee View
+=	= - = ID:E-000000  and Password:@
+=	=
+=	= Store Manager view
+=	= - = ID:SM-000000 and Password:@
+=	=
+=	= Warehouse Employee view
+=	= - = ID:WH-000000 and Password:@
+=	=
+=	= Head Quarters view
+=	= - = ID:HQ-0      and Password:@
+=	=
++ -- -- +
+
+
+
++===========================================================================================+
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::|				Support					|:::::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
++===========================================================================================+
+
++ -{o}- +
+|	| In the event of failure; cry.
+|	| 
+|	| Contact 317-544-8200 for help
++ -{o}- +
+
+
+
++===========================================================================================+
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::|		Thank you for your purchase.				|:::::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
++===========================================================================================+
+
+
+
+
+
++===========================================================================================+
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::+=======================================================================+:::::::::|
+|:::::::::|    ______    ______           _____     _____     _____     _____	  |:::::::::|
+|:::::::::|  F _____|  F _____|          /  _  `.  /  _  \   /  _  \   /  _  \    |:::::::::|
+|:::::::::| J |____/  J |____/  ______  t_/ 7 .'   F |/ | l  F |/ | l  J |/ | l   |:::::::::|
+|:::::::::| | _____|  | _____| |______| `- :'.'    | | /| |  | | /| |  | | /| |   |:::::::::|
+|:::::::::| F |___/   F |___/  L______J .' ;_J__   F  /_J l  F  /_J l  F  /_J l   |:::::::::|
+|:::::::::| J__F      J__F             J________L J\______/FJ\______/FJ\______/F  |:::::::::|
+|:::::::::| |__|      |__|             |________|  J______F  J______F  J______F   |:::::::::|
+|:::::::::|									  |:::::::::|
+|:::::::::+=======================================================================+:::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
+|:::::::::|			Created Spring 2020				|:::::::::::|
+|:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::|
++===========================================================================================+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
