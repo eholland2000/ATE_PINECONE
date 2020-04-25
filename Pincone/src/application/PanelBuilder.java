@@ -152,7 +152,6 @@ public class PanelBuilder {
 						modelTotal.removeRow(0);
 						modelTotal.addRow(new Object[] {"Total", "$" + storeCart.total} );
 	
-						spinner.setValue(1);
 					} else {
 						// transaction is a refund | values made negative
 						int sku = new Integer((int)txtSku.getValue());
@@ -174,7 +173,6 @@ public class PanelBuilder {
 						modelTotal.removeRow(0);
 						modelTotal.addRow(new Object[] {"Total", "$" + storeCart.total} );
 	
-						spinner.setValue(1);
 					}
 				} catch ( NumberFormatException | NullPointerException e ) {
 					e.printStackTrace();
@@ -198,20 +196,20 @@ public class PanelBuilder {
 				Object[] options = new Object[] { "Name", name,
 												  "Address", addres,
 												  "Phone", phone};
-				int r = JOptionPane.showConfirmDialog(null, options, "Enter Customer Information", JOptionPane.OK_CANCEL_OPTION);
+				int r = JOptionPane.showConfirmDialog(panel, options, "Enter Customer Information", JOptionPane.OK_CANCEL_OPTION);
 				if( r == JOptionPane.OK_OPTION ) {
 					try {
 						if (name.getText().length() > 0 && addres.getText().length() > 0 && Integer.parseInt(phone.getText()) / 1000000000 >= 1) {
-							JOptionPane.showMessageDialog(null, "New Customer added successfully");
+							JOptionPane.showMessageDialog(panel, "New Customer added successfully");
 							break;
 						} else if (name.getText().length() > 0 && addres.getText().length() > 0) {
-							JOptionPane.showMessageDialog(null, "Please enter a valid, 10-digit phone number");
+							JOptionPane.showMessageDialog(panel, "Please enter a valid, 10-digit phone number");
 						}
 						else {
-							JOptionPane.showMessageDialog(null, "Please fill all fields");
+							JOptionPane.showMessageDialog(panel, "Please fill all fields");
 						}
 					} catch (NumberFormatException e) {
-						JOptionPane.showMessageDialog(null, "Please enter a valid, 10-digit phone number");
+						JOptionPane.showMessageDialog(panel, "Please enter a valid, 10-digit phone number");
 					}
 				} else {
 					break;
@@ -265,13 +263,13 @@ public class PanelBuilder {
 						if( lookup.getText().length() > 0 && Integer.parseInt(lookup.getText()) / 1000000000 >= 1)
 						{
 							// customer look up always returns true
-							JOptionPane.showMessageDialog(null, "Success! Customer profile linked!");
+							JOptionPane.showMessageDialog(panel, "Success! Customer profile linked!");
 							break;
 						} else if (lookup.getText().length() > 0) {
-							JOptionPane.showMessageDialog(null, "Enter a valid, 10 digit phone number!");
+							JOptionPane.showMessageDialog(panel, "Enter a valid, 10 digit phone number!");
 						}
 					} catch (NumberFormatException e) {
-						JOptionPane.showMessageDialog(null, "Enter a valid, 10 digit phone number!");
+						JOptionPane.showMessageDialog(panel, "Enter a valid, 10 digit phone number!");
 					}
 				}
 				
@@ -535,7 +533,7 @@ public class PanelBuilder {
 				pane.add(sku);
 				pane.add(new JLabel("Current Quantity: "));
 				pane.add(currentStock);
-				int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter Item Count in Store", JOptionPane.OK_CANCEL_OPTION);
+				int result = JOptionPane.showConfirmDialog(panel, pane, "Please Enter Item Count in Store", JOptionPane.OK_CANCEL_OPTION);
 				
 				if (result == JOptionPane.OK_OPTION) {
 				   try {
@@ -545,10 +543,10 @@ public class PanelBuilder {
 						   // item exists in the store
 						   s.updateCurrentStock(s.getProductBySKU( Integer.parseInt(sku.getText()) ), Integer.parseInt(currentStock.getText()));
 						   
-						   JOptionPane.showMessageDialog(null, "Product updated!");
+						   JOptionPane.showMessageDialog(panel, "Product updated!");
 					   } else {
 						   // Product does not exist,  wrong pop-up called
-						   JOptionPane.showMessageDialog(null, "Error, Could not find product with that SKU");
+						   JOptionPane.showMessageDialog(panel, "Error, Could not find product with that SKU");
 					   }
 					   
 					   model.setRowCount(1);		// removes all old rows | keeps header (index = 0)
@@ -557,7 +555,7 @@ public class PanelBuilder {
 					    	model.addRow( new Object [] {p.getSKU(), p.getName(), p.getPrice(), p.getStockPar(), p.getStockIn()} );
 					   }
 				   } catch (NumberFormatException e) {
-					   JOptionPane.showMessageDialog(null, "Error, Not a Number!");
+					   JOptionPane.showMessageDialog(panel, "Error, Not a Number!");
 				   }
 				}
 			}
@@ -652,7 +650,7 @@ public class PanelBuilder {
 	        }
 	        customerModel.addRow( new Object [] {"ORDER ID", "ORDER TIMESTAMP", "STATUS", "SKU", "PRODUCT", "QUANTITY"});	// HEADER ROW
        
-		ArrayList<CustomerOrder> orders = FetchData.loadCustomerOrders();
+		ArrayList<CustomerOrder> orders = FetchData.loadCustomerOrders(); //TODO : throws errors?
 		
         for( int i = 0; i < orders.size(); i++ ) {
         	for (int j = 0; j < orders.get(i).getItems().size(); j++) {
@@ -687,7 +685,7 @@ public class PanelBuilder {
 					pane.add(new JLabel("Order ID: "));
 					pane.add(orderID);
 					
-					int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter OrderId", JOptionPane.OK_CANCEL_OPTION);
+					int result = JOptionPane.showConfirmDialog(panel, pane, "Please Enter OrderId", JOptionPane.OK_CANCEL_OPTION);
 					if( result == JOptionPane.OK_OPTION )
 					{
 						String OrderId = orderID.getText().toUpperCase();
@@ -707,7 +705,7 @@ public class PanelBuilder {
 								}
 							}
 						} else {
-							JOptionPane.showConfirmDialog(null, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showConfirmDialog(panel, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);
 						}
 					}
 				} else {
@@ -717,7 +715,7 @@ public class PanelBuilder {
 					pane.add(new JLabel("Order ID: "));
 					pane.add(orderID);
 					
-					int result = JOptionPane.showConfirmDialog(null, pane, "Please Enter OrderId", JOptionPane.OK_CANCEL_OPTION);
+					int result = JOptionPane.showConfirmDialog(panel, pane, "Please Enter OrderId", JOptionPane.OK_CANCEL_OPTION);
 					if( result == JOptionPane.OK_OPTION )
 					{
 						String OrderId = orderID.getText().toUpperCase();
@@ -749,7 +747,7 @@ public class PanelBuilder {
 					        }
 							pane.repaint();
 						} else {
-							JOptionPane.showConfirmDialog(null, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showConfirmDialog(panel, "Could not find an Order with that OrderId", "Error", JOptionPane.ERROR_MESSAGE);
 						}
 					}
 				}
@@ -874,7 +872,7 @@ public class PanelBuilder {
 				p.add(fullyStocked);
 				
 				
-				int result = JOptionPane.showConfirmDialog(null, p, 
+				int result = JOptionPane.showConfirmDialog(panel, p, 
 				         "Update Item stock", JOptionPane.OK_CANCEL_OPTION);
 				if ( result == JOptionPane.OK_OPTION ) {
 					try {
@@ -900,9 +898,9 @@ public class PanelBuilder {
 						    {
 						    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );						    }
 						}
-						JOptionPane.showMessageDialog(null, "Success!");
+						JOptionPane.showMessageDialog(panel, "Success!");
 					} catch (NumberFormatException e) {
-						JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+						JOptionPane.showMessageDialog(panel, "Error. One of your inputs was invalid. Please try again");
 					}
 				}
 				
@@ -919,7 +917,7 @@ public class PanelBuilder {
 					JPanel p = new JPanel();
 					p.add(new JLabel("Are you sure you want to restock Store " + stores.get(0).getStoreID() + "?"));
 					
-					int result = JOptionPane.showConfirmDialog(null, p, "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
+					int result = JOptionPane.showConfirmDialog(panel, p, "Confirm Store Restock", JOptionPane.OK_CANCEL_OPTION);
 					if (result == JOptionPane.OK_OPTION) 
 					{
 						Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
@@ -964,13 +962,13 @@ public class PanelBuilder {
 							reciept += line[0] +"|"+ line[1] + " @ "+ line[2] + "\n";
 						}
 						reciept += "-------- ---------------";
-						JOptionPane.showMessageDialog(null, reciept);
+						JOptionPane.showMessageDialog(panel, reciept);
 					}
 				} else {
 					JPanel p = new JPanel();
 					p.add(new JLabel("Are you sure you want to restock Warehouse" + warehouses.get(0).getwhID() + "?"));
 					
-					int result = JOptionPane.showConfirmDialog(null, p, "Confirm Warehouse Restock", JOptionPane.OK_CANCEL_OPTION);
+					int result = JOptionPane.showConfirmDialog(panel, p, "Confirm Warehouse Restock", JOptionPane.OK_CANCEL_OPTION);
 					if (result == JOptionPane.OK_OPTION) 
 					{
 						WareHouse currentWare = warehouses.get(0);	// TODO test this
@@ -1015,7 +1013,7 @@ public class PanelBuilder {
 							reciept += line[0] +"|"+ line[1] + " @ "+ line[2] + "\n";
 						}
 						reciept += "-------- ---------------";
-						JOptionPane.showMessageDialog(null, reciept);
+						JOptionPane.showMessageDialog(panel, reciept);
 					}
 				}
 				
@@ -1039,9 +1037,9 @@ public class PanelBuilder {
 				    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
 				    }
 			        
-					JOptionPane.showMessageDialog(null, "Success!");
+					JOptionPane.showMessageDialog(panel, "Success!");
 				} catch (NumberFormatException e) {
-					JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+					JOptionPane.showMessageDialog(panel, "Error. One of your inputs was invalid. Please try again");
 				}
 				
 			}
@@ -1076,9 +1074,9 @@ public class PanelBuilder {
 				    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getStockIn(), product.getStockPar(), 0} );
 				    }
 			        
-					JOptionPane.showMessageDialog(null, "Success!");
+					JOptionPane.showMessageDialog(panel, "Success!");
 				} catch (NumberFormatException e1) {
-					JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+					JOptionPane.showMessageDialog(panel, "Error. One of your inputs was invalid. Please try again");
 				}
 			}
 		});
@@ -1108,9 +1106,9 @@ public class PanelBuilder {
 				    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getDesc(), product.getStockPar()} );
 				    }
 			        
-					JOptionPane.showMessageDialog(null, "Success!");
+					JOptionPane.showMessageDialog(panel, "Success!");
 				} catch (NumberFormatException e1) {
-					JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+					JOptionPane.showMessageDialog(panel, "Error. One of your inputs was invalid. Please try again");
 				}
 			}
 		});
@@ -1138,7 +1136,7 @@ public class PanelBuilder {
 				p.add(new JLabel("Expected Fully Stocked Quantity"));
 				p.add(fullyStocked);
 				
-				int result = JOptionPane.showConfirmDialog(null, p, "Create new Product", JOptionPane.OK_CANCEL_OPTION);
+				int result = JOptionPane.showConfirmDialog(panel, p, "Create new Product", JOptionPane.OK_CANCEL_OPTION);
 				if (result == JOptionPane.OK_OPTION) 
 				{
 					Product nP = new Product( Integer.parseInt(sku.getText()), Double.parseDouble(price.getText()), name.getText() );
@@ -1164,7 +1162,7 @@ public class PanelBuilder {
 				    	model.addRow( new Object [] {product.getSKU(), product.getName(), product.getDesc(), product.getStockPar()} );
 				    }
 				} else {
-					JOptionPane.showMessageDialog(null, "Error. One of your inputs was invalid. Please try again");
+					JOptionPane.showMessageDialog(panel, "Error. One of your inputs was invalid. Please try again");
 				}
 			}
 		});
