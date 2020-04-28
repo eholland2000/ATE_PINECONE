@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -165,8 +164,4 @@ public class FetchData {
         return sb.toString();
       }
 
-    
-    public static void main(String[] args) {
-    	(new FetchData()).getOrders();
-    }
 }

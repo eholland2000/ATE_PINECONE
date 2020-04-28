@@ -74,23 +74,25 @@ public class GUI extends JFrame {
 		
 		visiblePane = contentPane;
 		// ----- ----- ----- -----
-		// Defined by log in user ID prefix
-
-		Product hat = new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
-		Product gloves = new Product(1, 10.00, "Gloves");
-		Product coat = new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
+		Product hat 	= new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
+		Product gloves 	= new Product(1, 10.00, "Gloves");
+		Product coat 	= new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
 
 		Catalog.addCatalogProduct(hat);
 		Catalog.addCatalogProduct(gloves);
 		Catalog.addCatalogProduct(coat);
+		
+		Product.setCatalog(hat);
+		Product.setCatalog(gloves);
+		Product.setCatalog(coat);
 
 		store.addNewProduct(hat, 10, 10);
 		store.addNewProduct(gloves, 50, 40);
 		store.addNewProduct(coat, 20, 2);
 
-		Product hat1 = new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
+		Product hat1 	= new Product(0, 20.00, "Winter Hat", "Fluffy hat with puffball");
 		Product gloves1 = new Product(1, 10.00, "Gloves");
-		Product coat1 = new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
+		Product coat1 	= new Product(2, 99.99, "Coat", "Waterproof, windproof, and very warm");
 
 		warehouse.addNewProduct(hat1, 200, 200);
 		warehouse.addNewProduct(gloves1, 300, 300);
@@ -117,12 +119,13 @@ public class GUI extends JFrame {
 					"FF-2000 | Login", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 					new String[] { "Login", "Shutdown" }, 0);
 
-			if (result == 0) {
+			if (result == 0) 
+			{
 				String pass = "";
 				for (char a : textPass.getPassword()) {
 					pass += a;
 				}
-				;
+
 				visiblePane = login(textID.getText(), pass);
 				visiblePane.setBounds(5, 5, 934, 635);
 				visiblePane.revalidate();

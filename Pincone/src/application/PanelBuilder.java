@@ -809,12 +809,20 @@ public class PanelBuilder {
 		panel.setBackground(SystemColor.info);
 		panel.setLayout(null);
 		
+		JLabel lblSelectAWarehouse = new JLabel("Select a Warehouse:");
+		lblSelectAWarehouse.setBounds(364, 15, 107, 35);
+		panel.add(lblSelectAWarehouse);
+		
+		JSpinner spnWarehouse = new JSpinner(new SpinnerNumberModel(0, 0, 0, 1));
+		spnWarehouse.setBounds(468, 22, 80, 20);
+		panel.add(spnWarehouse);
+		
 		JLabel lblChooseStore = new JLabel("Select a Store:");
 		lblChooseStore.setBounds(30, 15, 100, 35);
 		panel.add(lblChooseStore);
 		
 		JSpinner txtStoreId = new JSpinner(new SpinnerNumberModel(0, 0, 0, 1) );	// Because SKUs are incremental (design choice) spinner limits input to only valid inputs [ TODO: changes with data integrity ] 
-		txtStoreId.setBounds(130, 23, 80, 20);
+		txtStoreId.setBounds(105, 23, 80, 20);
 		panel.add(txtStoreId);
 		
 		JPanel pane = new JPanel();
@@ -829,22 +837,22 @@ public class PanelBuilder {
 		    @Override
 		    public boolean isCellEditable(int row, int column)
 		    {
-		        return column == 4 && row > 0;
+		        return column == 3 && row > 0;
 		    }
 		};  
 		model.addColumn("SKU");
 		model.addColumn("NAME");
 		model.addColumn("AMOUNT IN STORE");
 		model.addColumn("PAR LEVEL");
-		model.addColumn("RESTOCK ORDERED");
+		model.addColumn("PENDING DELIVERY");
 		
 		DefaultTableColumnModel columnModel = new DefaultTableColumnModel(); 	
-			int[] columnsWidth = { 10, 50, 50, 50, 50 };											// DEFINES WIDTH
+			int[] columnsWidth = { 10, 50, 50, 50, 50 };														// DEFINES WIDTH
 	        for( int i = 0; i < columnsWidth.length; i++ ) {							
 	    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
 	        }
 	        model.addRow( new Object [] {"SKU", "NAME", "AMOUNT IN STORE", "PAR LEVEL", "PENDING DELIVERY" });	// HEADER ROW
-		
+
 	    JTable table = new JTable(model);
 		table.setBounds(10, 11, 837, 508);
 		table.setShowVerticalLines(false);
@@ -923,14 +931,14 @@ public class PanelBuilder {
 						Store currentStore = stores.get( new Integer((int)txtStoreId.getValue()) );	// TODO test this
 							
 						
-						Cart c = new Cart("W0-S" + currentStore.getStoreID() );		// TODO: add way for HQ store change
+						Cart c = new Cart("W0-S" + currentStore.getStoreID() );		
 						for( Product p1 : Store.getStoreByID(currentStore.getStoreID()).getProducts() )	// gets Store by static Store list
 					    {
 							if( p1.getStockPar() - p1.getStockIn() > 0 )
 							{
 								// if Product needs to be re-stocked  |  AUTO-ORDER amount is > 0 
 								// adds item by "AUTO-ORDER" value to orderCart
-								Product pSuper = Product.getProductBySKU( p1.getSKU() );		// gets default assigned values
+								Product pSuper = Catalog.getProductBySKU( p1.getSKU() );		// gets default assigned values
 								Product lProd  = new Product(pSuper.getSKU(), pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
 								
 						    	c.setProduct( lProd, p1.getStockPar() - p1.getStockIn() );		// Updates value in cart relative to amount in store
@@ -974,21 +982,21 @@ public class PanelBuilder {
 						WareHouse currentWare = warehouses.get(0);	// TODO test this
 							
 						
-						Cart c = new Cart("WOO");		// TODO: add way for HQ store change
+						Cart c = new Cart("WG-W" + spnWarehouse.getValue() );		// TODO: add way for HQ store change
 						for( Product p1 : currentWare.getProducts() )	// gets Store by static Store list
 					    {
 							if( p1.getStockPar() - p1.getStockIn() > 0 )
 							{
 								// if Product needs to be re-stocked  |  AUTO-ORDER amount is > 0 
 								// adds item by "AUTO-ORDER" value to orderCart
-								Product pSuper = Product.getProductBySKU( p1.getSKU() );		// gets default assigned values
+								Product pSuper = Catalog.getProductBySKU( p1.getSKU() );		// gets default assigned values
 								Product lProd  = new Product(pSuper.getSKU(), pSuper.getPrice(), pSuper.getName(), pSuper.getDesc());	// item in cart; not a unique item in the system
 								
 						    	c.setProduct( lProd, p1.getStockPar() - p1.getStockIn() );		// Updates value in cart relative to amount in store
 							}
 					    }
 						// updates Pending orders | COMPOSITE KEY = <FROM>-<TO>-<orderIDInedx>
-						//HeadQuarters.addPending(c);
+						HeadQuarters.addPending(c);
 						
 						// updates row values | StockIn updated on Pending sent by WareHouse
 						model.setRowCount(1);
@@ -1005,7 +1013,7 @@ public class PanelBuilder {
 					    }
 					    
 					    
-					    String reciept = "ORDER_ID : W" + currentWare.getwhID() +"\n"; // TODO: add wh to each STORE or hardcode to W0
+					    String reciept = "ORDER_ID : WG-W" + currentWare.getwhID() +"\n"; // TODO: add wh to each STORE or hardcode to W0
 						String[][] cart = c.cartToPrint();				// [ SKU ][ NAME ][ QUANTITY ][ @ AMOUNT ][ LINE TOTAL ]
 						for( String[] line : cart )
 						{
@@ -1027,10 +1035,23 @@ public class PanelBuilder {
 		revalidateStore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
+					model.setRowCount(0);
+					model.addColumn("SKU");
+					model.addColumn("NAME");
+					model.addColumn("AMOUNT IN STORE");
+					model.addColumn("PAR LEVEL");
+					model.addColumn("PENDING DELIVERY");
+					
+					DefaultTableColumnModel columnModel = new DefaultTableColumnModel(); 	
+						int[] columnsWidth = { 10, 50, 50, 50, 50 };														// DEFINES WIDTH
+				        for( int i = 0; i < columnsWidth.length; i++ ) {							
+				    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
+				        }
+				        model.addRow( new Object [] {"SKU", "NAME", "AMOUNT IN STORE", "PAR LEVEL", "PENDING DELIVERY" });	// HEADER ROW
+						table.setColumnModel(columnModel);
+
 					isStore = true;
 					Store currentStore = stores.get( new Integer((int) txtStoreId.getValue()) );
-					
-					model.setRowCount(1);
 					
 				    for( Product product : currentStore.getProducts() )
 				    {
@@ -1044,30 +1065,30 @@ public class PanelBuilder {
 				
 			}
 		});
-		revalidateStore.setBounds(216, 21, 150, 23);
+		revalidateStore.setBounds(190, 21, 150, 23);
 		panel.add(revalidateStore);
-		
-		JLabel lblSelectAWarehouse = new JLabel("Select a Warehouse:");
-		lblSelectAWarehouse.setBounds(364, 15, 107, 35);
-		panel.add(lblSelectAWarehouse);
-		
-		JSpinner txtStoreId_1 = new JSpinner(new SpinnerNumberModel(0, 0, 0, 1));
-		txtStoreId_1.setBounds(468, 22, 80, 20);
-		panel.add(txtStoreId_1);
 		
 		JButton revalidateWarehouse = new JButton("Revalidate Warehouse");
 		revalidateWarehouse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
+					model.setRowCount(0);
+					model.addColumn("SKU");
+					model.addColumn("NAME");
+					model.addColumn("AMOUNT IN STORE");
+					model.addColumn("PAR LEVEL");
+					model.addColumn("PENDING DELIVERY");
+					
+					DefaultTableColumnModel columnModel = new DefaultTableColumnModel(); 	
+						int[] columnsWidth = { 10, 50, 50, 50, 50 };														// DEFINES WIDTH
+				        for( int i = 0; i < columnsWidth.length; i++ ) {							
+				    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
+				        }
+				        model.addRow( new Object [] {"SKU", "NAME", "AMOUNT IN STORE", "PAR LEVEL", "PENDING DELIVERY" });	// HEADER ROW
+						table.setColumnModel(columnModel);
+
 					isStore = false;
 					WareHouse currentWare = WareHouse.getWarehouseByID( 0 );
-					if (currentWare != null) {
-						System.out.println("HI");
-					} else {
-						System.out.println("tost");
-					}
-					
-					model.setRowCount(1);
 					
 				    for( Product product : currentWare.getProducts() )
 				    {
@@ -1087,6 +1108,7 @@ public class PanelBuilder {
 		productView.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
+					model.setRowCount(0);
 					model.addColumn("SKU");
 					model.addColumn("NAME");
 					model.addColumn("DESCRIPTION");
@@ -1097,7 +1119,6 @@ public class PanelBuilder {
 				        for( int i = 0; i < columnsWidth.length; i++ ) {							
 				    		columnModel.addColumn(new TableColumn(i, columnsWidth[i]));
 				        }
-						model.setRowCount(0);
 				        model.addRow( new Object [] {"SKU", "NAME", "DESCRIPTION", "PAR LEVEL"});			// HEADER ROW
 						table.setColumnModel(columnModel);
 						

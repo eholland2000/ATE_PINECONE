@@ -16,19 +16,25 @@ public class Product {
 	
 	// 	static private ArrayList<Product> products = new ArrayList<Product>(); moved to Catalog to track default values
 	
-	public Product(int SKU, double price, String name, String desc) 
+	public Product() 
 	{
-		this.SKU = SKU;
-		this.price = price;
-		this.name = name;
-		this.desc = desc;
-	}
-	public Product() {
 		this.SKU = 0;
 		this.name = "";
 		this.stockIn = 0;
 	}
-	
+	public Product( Product p )
+	{
+		// create product from catalog item
+		// "Initializes from template"		& applies StockPar to new object
+		new Product(p.getSKU(), p.getPrice(), p.getName(), p.getDesc()).setStockPar( p.getStockPar() );
+	}
+	public Product(int SKU, String name, int stockIn) 
+	{
+		//Product initializer for customer order
+		this.SKU = SKU;
+		this.name = name;
+		this.stockIn = stockIn;
+	}
 	public Product(int SKU, double price, String name) 
 	{
 		// can be entered without a description of the product 
@@ -37,18 +43,14 @@ public class Product {
 		this.name = name;
 		this.desc = "";
 	}
-	public Product( Product p )
+	public Product(int SKU, double price, String name, String desc) 
 	{
-		// create product from catalog item
-		// "Initializes from template"		& applies StockPar to new object
-		new Product(p.getSKU(), p.getPrice(), p.getName(), p.getDesc()).setStockPar( p.getStockPar() );;
-	}
-	public Product(int SKU, String name, int stockIn) {
-		//Product initializer for customer order
 		this.SKU = SKU;
+		this.price = price;
 		this.name = name;
-		this.stockIn = stockIn;
+		this.desc = desc;
 	}
+	
 	public int getSKU()
 	{
 		return this.SKU;
@@ -94,21 +96,10 @@ public class Product {
 	static public void setCatalog(Product p)
 	{
 		/*
-		 * Default 
+		 * Default product
 		 */
 		products.add(p);
 	}
-	static public Product getProductBySKU(int SKU) {
-		for (int i = 0; i < products.size(); i++) {
-			if (products.get(i).getSKU() == SKU)
-			{
-				Product p = products.get(i);
-				return p;
-			}
-		}
-		return null;
-	}
-
 	//Just in case
 	public boolean equals(Product p) {
 		if (this.SKU == p.getSKU() && this.name == p.getName() && this.price == p.getPrice() && this.desc == p.getDesc())
